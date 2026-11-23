@@ -10,22 +10,36 @@ agentes de IA.
 - Node.js 20+ (probado con Node 26)
 - `npm install` y `npx playwright install chromium`
 
+## Entorno
+
+| Componente | Valor |
+|---|---|
+| UI bajo prueba | `https://automationintesting.online` |
+| API | `https://automationintesting.online/api` |
+| Autenticación | `POST /api/auth/login` → token en `Cookie` |
+| Credenciales admin (públicas) | `admin` / `password` — sobreescribibles con `RBP_ADMIN_USER` / `RBP_ADMIN_PASSWORD` |
+| Naturaleza | Demo pública **compartida y con reinicios**: los tests crean sus propios datos y no dependen de estado previo |
+
 ## Comandos
 
 ```bash
 npm install                  # dependencias
 npx playwright install chromium
 npm run typecheck            # tsc --noEmit (gate de tipos)
-npm test                     # suite completa, 2 workers, backend real
-npm run test:api             # solo API
-npm run test:ui              # solo UI
+npm test                     # suite ESTABLE: 14 escenarios, 2 workers, exit 0
+npm run test:bugs            # 12 bugs conocidos: fallan en rojo con evidencia
+npm run test:all             # los 26 escenarios juntos
+npm run test:api             # solo API (estable)
+npm run test:ui              # solo UI (estable)
+npm run scenarios            # lista los 26 escenarios con archivo y línea
 npm run report               # abre el reporte HTML de la última ejecución
 ```
 
-Códigos de salida: `0` = todo verde (incluye bugs conocidos como fallo
-esperado); `≠0` = fallo inesperado. La evidencia de cada ejecución queda en
-`playwright-report/` (HTML) y `test-results/` (traces, screenshots, videos de
-fallos).
+Códigos de salida: `npm test` → `0` (la señal de calidad estable siempre debe
+ser verde); `npm run test:bugs` → `1` **por diseño** mientras los bugs del
+entorno existan (cada rojo es un hallazgo documentado). La evidencia de cada
+ejecución queda en `playwright-report/` (HTML) y `test-results/` (traces,
+screenshots, videos de fallos).
 
 ## Estructura
 

@@ -22,3 +22,6 @@ playwright/.auth/
 .DS_Store
 .idea/
 .vscode/
+
+# --- Cobertura (si se agrega en el futuro) ---
+coverage/
