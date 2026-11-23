@@ -1,0 +1,19 @@
+{
+  "name": "restful-booker-automation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prueba técnica QE: automatización API + UI de Restful Booker Platform con Playwright (POM + Flows + Fixtures + Oracle)",
+  "scripts": {
+    "test": "playwright test",
+    "test:api": "playwright test tests/api",
+    "test:ui": "playwright test tests/ui",
+    "test:headed": "playwright test --headed",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}
