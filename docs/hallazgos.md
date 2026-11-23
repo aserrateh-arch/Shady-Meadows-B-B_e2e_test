@@ -50,6 +50,18 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
   "API → UI" (agendar por API y ver el bloqueo en el front) queda bloqueado
   por entorno y corre como fallo esperado (`test.fail()`).
 
+## BUG-05 — La UI no informa nada ante un corte de conexión en el alta
+
+- **Pasos**: mock de red (`route.abort('connectionfailed')`) sobre el POST
+  `/api/booking` durante una reserva por UI; observar la pantalla.
+- **Esperado (UX)**: mensaje de error visible para el usuario.
+- **Observado**: el `submitBooking` del front solo hace `console.error` en el
+  `catch` (`BookingForm.tsx`): no hay alerta, ni spinner detenido, ni retry.
+  La pantalla queda en el formulario sin feedback alguno.
+- **Impacto**: el usuario no sabe si reservó o no; riesgo de doble envío
+  manual. Nota: tampoco existe guard de doble clic en "Reserve Now".
+- **Evidencia**: `tests/ui/booking.resilience.spec.ts` (fallo esperado).
+
 ## Divergencias menores (no bug, comportamiento a conocer)
 
 - Las rutas con trailing slash (`/api/room/`, `/api/booking/`) responden 308

@@ -40,7 +40,8 @@ src/
               habitación por worker, workaround documentado del entorno
 tests/
   api/        Éxito (parametrizado x2) y negativo (no-persistencia)
-  ui/         Integración UI+API, API→UI (bloqueado por bugs), mock de fallo
+  ui/         Integración UI+API, API→UI (bloqueado por bugs), mocks de fallo
+              y resiliencia (500, corte de conexión, latencia)
   bugs/       Contrato documentado que el entorno no cumple (test.fail)
 skills/       api-contract-testing, oracle-testing, synthetic-data
 agents/       qa-orchestrator (orquesta las skills)
@@ -49,8 +50,9 @@ docs/         hallazgos (bugs), casos priorizados, skills propuestas, evidencia 
 
 ## Decisiones clave
 
-- **Backend real** en todos los escenarios; el único mock es la prueba de
-  fallo (500 simulado) y el workaround acotado de BUG-01 (ver abajo).
+- Backend real en todos los escenarios; los únicos mocks permitidos son los de
+  fallo/inestabilidad (500 simulado, corte de conexión, latencia inyectada) y
+  el workaround acotado de BUG-01 (ver abajo).
 - **Sin datos hardcodeados ni fechas fijas**: huéspedes sintéticos únicos por
   ejecución y ventanas libres calculadas desde la ocupación real — la demo se
   reinicia y es compartida, así que ningún test depende de estado previo.

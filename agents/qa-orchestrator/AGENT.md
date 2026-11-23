@@ -28,8 +28,9 @@ especializadas en lugar de improvisar convenciones.
    se inyecta desde `src/fixtures/test.fixtures.ts`. Un recurso nuevo = fixture nueva.
 
 ## Políticas duras
-- Backend real en todos los escenarios; el único mock permitido es el de fallo
-  (`tests/ui/booking.mock-failure.spec.ts`) y debe declararse explícitamente.
+- Backend real en todos los escenarios; los únicos mocks permitidos son los de
+  fallo/inestabilidad (`tests/ui/booking.mock-failure.spec.ts`,
+  `tests/ui/booking.resilience.spec.ts`) y deben declararse explícitamente.
 - Sin esperas fijas, sin dependencias entre tests, sin datos compartidos.
 - Nunca debilitar aserciones para pasar: una divergencia se reporta, no se oculta.
 
