@@ -18,12 +18,17 @@ export function addDays(isoDate: string, days: number): string {
  * Dado el conjunto de rangos ocupados de una habitación, devuelve la primera
  * ventana libre de `nights` noches a partir de `startAfterDays` días desde hoy.
  * Garantiza que el test nunca dependa de fechas hardcodeadas (la demo se reinicia).
+ *
+ * `jitterDays` desplaza el inicio de búsqueda de forma pseudo-aleatoria: en la
+ * demo COMPARTIDA, si todos los tests/usuarios toman "la primera ventana
+ * libre", colisionan (409). El jitter dispersa las ventanas elegidas.
  */
 export function findFreeWindow(
   booked: Array<{ start: string; end: string }>,
   nights = 2,
   startAfterDays = 3,
   searchHorizonDays = 180,
+  jitterDays = 0,
 ): DateWindow {
   const occupied = new Set<string>();
   for (const { start, end } of booked) {
@@ -34,7 +39,7 @@ export function findFreeWindow(
   }
 
   const today = toIsoDate(new Date());
-  for (let offset = startAfterDays; offset <= searchHorizonDays; offset++) {
+  for (let offset = startAfterDays + jitterDays; offset <= searchHorizonDays; offset++) {
     const checkin = addDays(today, offset);
     let free = true;
     for (let n = 0; n < nights; n++) {

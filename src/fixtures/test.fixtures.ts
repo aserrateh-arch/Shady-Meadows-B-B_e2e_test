@@ -109,7 +109,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       start: e.bookingdates.checkin,
       end: e.bookingdates.checkout,
     }));
-    await use(findFreeWindow(ranges));
+    // Jitter de hasta 60 días: dispersa las ventanas elegidas por tests y
+    // usuarios concurrentes de la demo compartida (reduce colisiones 409).
+    const jitter = Math.floor(Math.random() * 60);
+    await use(findFreeWindow(ranges, 2, 3, 180, jitter));
   },
 
   reservationPage: async ({ page }, use) => {
