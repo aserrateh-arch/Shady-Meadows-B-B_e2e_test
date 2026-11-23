@@ -1,20 +1,8 @@
 import type { BookingRequest } from '../../src/api/types';
-import { buildGuest } from '../../src/data/guest.factory';
-import { findFreeWindow } from '../../src/data/date.utils';
 import { checkRejectionContract } from '../../src/oracle/booking.oracle';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 type PayloadOverrides = Record<string, unknown>;
-
-async function freeWindowFor(
-  api: { booking: { listByRoom: (id: number) => Promise<Array<{ bookingdates: { checkin: string; checkout: string } }>> } },
-  roomId: number,
-) {
-  const entries = await api.booking.listByRoom(roomId);
-  return findFreeWindow(
-    entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
-  );
-}
 
 /**
  * Matriz de validación derivada del contrato documentado (colección Postman):
@@ -66,16 +54,21 @@ const strictRejections: Array<{ label: string; overrides: PayloadOverrides; erro
 
 test.describe('API — matriz de validación (rechazos estrictos)', () => {
   for (const { label, overrides, error } of strictRejections) {
-    test(`rechaza ${label} y no persiste`, async ({ api, roomUnderTest }, testInfo) => {
+    test(`rechaza ${label} y no persiste`, async ({
+      api,
+      roomUnderTest,
+      guest,
+      freeWindow,
+    }, testInfo) => {
       const roomId = roomUnderTest.roomid;
       const before = await api.booking.listByRoom(roomId);
       const knownIds = new Set(before.map((b) => b.bookingid));
 
       const payload = {
-        ...buildGuest(),
+        ...guest,
         roomid: roomId,
         depositpaid: false,
-        bookingdates: await freeWindowFor(api, roomId),
+        bookingdates: freeWindow,
         ...overrides,
       } as BookingRequest;
       const response = await api.booking.create(payload);
@@ -121,16 +114,20 @@ const businessRules: Array<{ label: string; bug: string; overrides: PayloadOverr
 
 test.describe('API — reglas de negocio no enforced por el backend', () => {
   for (const { label, bug, overrides } of businessRules) {
-    test(`${bug}: debería rechazar ${label}`, async ({ api, roomUnderTest }, testInfo) => {
+    test(`${bug}: debería rechazar ${label}`, async ({
+      api,
+      roomUnderTest,
+      guest,
+      freeWindow,
+    }, testInfo) => {
       test.fail();
-      const roomId = roomUnderTest.roomid;
-      const payload: BookingRequest = {
-        ...buildGuest(),
-        roomid: roomId,
+      const payload = {
+        ...guest,
+        roomid: roomUnderTest.roomid,
         depositpaid: false,
-        bookingdates: await freeWindowFor(api, roomId),
+        bookingdates: freeWindow,
         ...overrides,
-      };
+      } as BookingRequest;
       const response = await api.booking.create(payload);
       await testInfo.attach('respuesta-observada', {
         body: JSON.stringify(
@@ -152,13 +149,18 @@ test.describe('API — reglas de negocio no enforced por el backend', () => {
     { label: 'bookingdates null', overrides: { bookingdates: null } },
     { label: 'bookingdates ausente', overrides: {} },
   ]) {
-    test(`BUG-10: ${variant.label} debe responder 400`, async ({ api, roomUnderTest }) => {
+    test(`BUG-10: ${variant.label} debe responder 400`, async ({
+      api,
+      roomUnderTest,
+      guest,
+      freeWindow,
+    }) => {
       test.fail();
       const base: Record<string, unknown> = {
-        ...buildGuest(),
+        ...guest,
         roomid: roomUnderTest.roomid,
         depositpaid: false,
-        bookingdates: await freeWindowFor(api, roomUnderTest.roomid),
+        bookingdates: freeWindow,
       };
       const payload = { ...base, ...variant.overrides };
       if (variant.label.endsWith('ausente')) {
@@ -166,7 +168,9 @@ test.describe('API — reglas de negocio no enforced por el backend', () => {
       }
       let outcome: string;
       try {
-        const response = await api.booking.create(payload as unknown as BookingRequest, { timeout: 10_000 });
+        const response = await api.booking.create(payload as unknown as BookingRequest, {
+          timeout: 10_000,
+        });
         outcome = `HTTP ${response.status()}`;
       } catch {
         outcome = 'sin respuesta HTTP (timeout/reset de conexión)';

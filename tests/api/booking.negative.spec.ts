@@ -1,6 +1,4 @@
 import type { BookingRequest } from '../../src/api/types';
-import { buildGuest } from '../../src/data/guest.factory';
-import { findFreeWindow } from '../../src/data/date.utils';
 import { checkRejectionContract } from '../../src/oracle/booking.oracle';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
@@ -8,19 +6,18 @@ test.describe('API — reserva inválida (dato obligatorio ausente)', () => {
   test('rechaza la reserva sin firstname y no persiste ningún registro', async ({
     api,
     roomUnderTest,
+    guest,
+    freeWindow,
   }, testInfo) => {
     const roomId = roomUnderTest.roomid;
     const before = await api.booking.listByRoom(roomId);
     const knownIds = new Set(before.map((b) => b.bookingid));
 
-    const window = findFreeWindow(
-      before.map((b) => ({ start: b.bookingdates.checkin, end: b.bookingdates.checkout })),
-    );
     const { firstname: _omitted, ...withoutFirstname } = {
-      ...buildGuest(),
+      ...guest,
       roomid: roomId,
       depositpaid: true,
-      bookingdates: window,
+      bookingdates: freeWindow,
     } satisfies BookingRequest;
 
     const response = await api.booking.create(withoutFirstname);

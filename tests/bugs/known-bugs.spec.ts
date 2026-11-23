@@ -1,6 +1,4 @@
 import type { BookingRequest } from '../../src/api/types';
-import { buildGuest } from '../../src/data/guest.factory';
-import { findFreeWindow } from '../../src/data/date.utils';
 import { checkFullBookingContract } from '../../src/oracle/booking.oracle';
 import { CREATE_BOOKING_RESPONSE_DOCUMENTED } from '../../src/oracle/contracts';
 import { checkSchema } from '../../src/oracle/schema.checker';
@@ -39,17 +37,15 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', () => {
   test('BUG-02: GET /api/booking/{id} debe responder 200 con la reserva', async ({
     api,
     roomUnderTest,
+    guest,
+    freeWindow,
   }) => {
     test.fail();
-    const entries = await api.booking.listByRoom(roomUnderTest.roomid);
-    const window = findFreeWindow(
-      entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
-    );
     const payload: BookingRequest = {
-      ...buildGuest(),
+      ...guest,
       roomid: roomUnderTest.roomid,
       depositpaid: false,
-      bookingdates: window,
+      bookingdates: freeWindow,
     };
     const createResponse = await api.booking.create(payload);
     expect(createResponse.status()).toBe(201);
@@ -65,17 +61,15 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', () => {
   test('BUG-03: el alta debe devolver email y phone del huésped (contrato documentado)', async ({
     api,
     roomUnderTest,
+    guest,
+    freeWindow,
   }, testInfo) => {
     test.fail();
-    const entries = await api.booking.listByRoom(roomUnderTest.roomid);
-    const window = findFreeWindow(
-      entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
-    );
     const payload: BookingRequest = {
-      ...buildGuest(),
+      ...guest,
       roomid: roomUnderTest.roomid,
       depositpaid: true,
-      bookingdates: window,
+      bookingdates: freeWindow,
     };
     const createResponse = await api.booking.create(payload);
     expect(createResponse.status()).toBe(201);

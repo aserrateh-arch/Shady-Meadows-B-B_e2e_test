@@ -1,5 +1,3 @@
-import { buildGuest } from '../../src/data/guest.factory';
-import { findFreeWindow } from '../../src/data/date.utils';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
@@ -11,11 +9,12 @@ import { expect, test } from '../../src/fixtures/test.fixtures';
  */
 test.describe('UI — fallo del backend simulado (mock)', () => {
   test('muestra el error y no confirma cuando el alta falla con 500', async ({
-    api,
     bookingFlow,
     reservationPage,
     roomUnderTest,
     roomDetailWorkaround,
+    guest,
+    freeWindow,
     page,
   }) => {
     void roomDetailWorkaround;
@@ -30,13 +29,7 @@ test.describe('UI — fallo del backend simulado (mock)', () => {
       return route.continue();
     });
 
-    const entries = await api.booking.listByRoom(roomUnderTest.roomid);
-    const window = findFreeWindow(
-      entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
-    );
-    const guest = buildGuest();
-
-    await bookingFlow.bookRoom(roomUnderTest, guest, window);
+    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow);
 
     await expect(reservationPage.errorAlert).toBeVisible();
     await expect(reservationPage.confirmationHeading).toBeHidden();

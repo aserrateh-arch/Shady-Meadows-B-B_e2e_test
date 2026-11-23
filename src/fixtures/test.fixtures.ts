@@ -3,7 +3,9 @@ import { AuthClient } from '../api/auth.client';
 import { BookingClient } from '../api/booking.client';
 import { ReportClient } from '../api/report.client';
 import { RoomClient } from '../api/room.client';
-import type { Room } from '../api/types';
+import type { GuestData, Room } from '../api/types';
+import { buildGuest } from '../data/guest.factory';
+import { findFreeWindow, type DateWindow } from '../data/date.utils';
 import { BookingFlow } from '../flows/booking.flow';
 import { HomePage } from '../pages/home.page';
 import { ReservationPage } from '../pages/reservation.page';
@@ -28,11 +30,19 @@ interface TestFixtures {
   homePage: HomePage;
   reservationPage: ReservationPage;
   bookingFlow: BookingFlow;
+  /** Huésped sintético único por test (preparado ANTES del test). */
+  guest: GuestData;
+  /**
+   * Ventana de fechas libre para la habitación del worker, calculada ANTES
+   * del test desde la ocupación real (la demo se reinicia: prohibido
+   * hardcodear fechas).
+   */
+  freeWindow: DateWindow;
   /**
    * Workaround documentado (ver docs/hallazgos.md, BUG-01): el endpoint
    * GET /api/room/{id} del entorno responde 500 y la página de reserva no
    * renderiza. Esta fixture intercepta SOLO ese endpoint y lo sirve con los
-   * datos reales de GET /api/room/ (listado). El alta de la reserva y toda
+   * datos reales de GET /api/room (listado). El alta de la reserva y toda
    * verificación posterior siguen contra el backend real.
    */
   roomDetailWorkaround: void;
@@ -73,6 +83,19 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   homePage: async ({ page }, use) => {
     await use(new HomePage(page));
+  },
+
+  guest: async ({}, use) => {
+    await use(buildGuest());
+  },
+
+  freeWindow: async ({ api, roomUnderTest }, use) => {
+    const entries = await api.booking.listByRoom(roomUnderTest.roomid);
+    const ranges = entries.map((e) => ({
+      start: e.bookingdates.checkin,
+      end: e.bookingdates.checkout,
+    }));
+    await use(findFreeWindow(ranges));
   },
 
   reservationPage: async ({ page }, use) => {

@@ -1,11 +1,9 @@
-import { buildGuest } from '../../src/data/guest.factory';
-import { findFreeWindow } from '../../src/data/date.utils';
 import { checkBookingIdentity } from '../../src/oracle/booking.oracle';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
  * Escenario integrado UI + API:
- * 1. Se agenda por UI (backend real: el POST /api/booking/ lo hace el front).
+ * 1. Se agenda por UI (backend real: el POST /api/booking lo hace el front).
  * 2. Se verifica la confirmación en pantalla.
  * 3. Se consulta el MISMO registro por API y se valida su identidad.
  *
@@ -20,14 +18,12 @@ test.describe('UI + API — reserva integrada de punta a punta', () => {
     roomUnderTest,
     reservationPage,
     roomDetailWorkaround,
+    guest,
+    freeWindow,
   }, testInfo) => {
     void roomDetailWorkaround;
     const roomId = roomUnderTest.roomid;
-    const entries = await api.booking.listByRoom(roomId);
-    const window = findFreeWindow(
-      entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
-    );
-    const guest = buildGuest();
+    const window = freeWindow;
 
     await bookingFlow.bookRoom(roomUnderTest, guest, window);
     await reservationPage.expectConfirmation(window);

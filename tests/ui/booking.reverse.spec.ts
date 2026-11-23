@@ -1,5 +1,4 @@
 import type { BookingRequest } from '../../src/api/types';
-import { buildGuest } from '../../src/data/guest.factory';
 import { findFreeWindow } from '../../src/data/date.utils';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
@@ -18,28 +17,26 @@ test.describe('API → UI — el front refleja lo agendado por API', () => {
     api,
     reservationPage,
     roomUnderTest,
+    guest,
+    freeWindow,
   }) => {
     test.fail();
     const roomId = roomUnderTest.roomid;
+    const window = freeWindow;
+    // Ventana de visualización distinta a la reservada, para distinguir el
+    // evento "Selected" de los eventos de ocupación.
     const entries = await api.booking.listByRoom(roomId);
     const ranges = entries.map((e) => ({
       start: e.bookingdates.checkin,
       end: e.bookingdates.checkout,
     }));
-    const window = findFreeWindow(ranges);
-    // Ventana de visualización distinta a la reservada, para distinguir el
-    // evento "Selected" de los eventos de ocupación.
-    const viewWindow = findFreeWindow(
-      [...ranges, { start: window.checkin, end: window.checkout }],
-      2,
-      60,
-    );
+    const viewWindow = findFreeWindow([...ranges, { start: window.checkin, end: window.checkout }], 2, 60);
 
     await reservationPage.gotoWithDates(roomId, viewWindow);
     const eventsBefore = await reservationPage.calendarEvents().count();
 
     const payload: BookingRequest = {
-      ...buildGuest(),
+      ...guest,
       roomid: roomId,
       depositpaid: false,
       bookingdates: window,

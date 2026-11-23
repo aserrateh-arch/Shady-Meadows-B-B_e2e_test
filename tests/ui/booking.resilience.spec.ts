@@ -1,5 +1,3 @@
-import { buildGuest } from '../../src/data/guest.factory';
-import { findFreeWindow } from '../../src/data/date.utils';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
@@ -15,6 +13,8 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
     reservationPage,
     roomUnderTest,
     roomDetailWorkaround,
+    guest,
+    freeWindow,
     page,
   }) => {
     void roomDetailWorkaround;
@@ -28,12 +28,7 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
       return route.continue();
     });
 
-    const entries = await api.booking.listByRoom(roomUnderTest.roomid);
-    const window = findFreeWindow(
-      entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
-    );
-    const guest = buildGuest();
-
+    const window = freeWindow;
     await bookingFlow.bookRoom(roomUnderTest, guest, window);
 
     await expect(reservationPage.confirmationHeading).toBeVisible({ timeout: 20_000 });
@@ -53,11 +48,12 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
   });
 
   test('ante corte de conexión la UI informa el error (BUG-05: hoy no lo hace)', async ({
-    api,
     bookingFlow,
     reservationPage,
     roomUnderTest,
     roomDetailWorkaround,
+    guest,
+    freeWindow,
     page,
   }) => {
     test.fail();
@@ -69,11 +65,7 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
       return route.continue();
     });
 
-    const entries = await api.booking.listByRoom(roomUnderTest.roomid);
-    const window = findFreeWindow(
-      entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
-    );
-    await bookingFlow.bookRoom(roomUnderTest, buildGuest(), window);
+    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow);
 
     // Expectativa de UX: un fallo de red debe ser visible para el usuario.
     await expect(reservationPage.errorAlert).toBeVisible();
@@ -86,6 +78,8 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
     reservationPage,
     roomUnderTest,
     roomDetailWorkaround,
+    guest,
+    freeWindow,
     page,
   }) => {
     test.fail();
@@ -100,12 +94,7 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
       return route.continue();
     });
 
-    const entries = await api.booking.listByRoom(roomUnderTest.roomid);
-    const window = findFreeWindow(
-      entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
-    );
-    const guest = buildGuest();
-
+    const window = freeWindow;
     await homePage.goto();
     await homePage.openReservation(roomUnderTest);
     await reservationPage.setDates(roomUnderTest.roomid, window);

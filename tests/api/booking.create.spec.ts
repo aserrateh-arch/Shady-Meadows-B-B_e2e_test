@@ -1,13 +1,11 @@
 import type { TestInfo } from '@playwright/test';
 import type { BookingRequest } from '../../src/api/types';
-import { buildGuest } from '../../src/data/guest.factory';
-import { findFreeWindow } from '../../src/data/date.utils';
 import {
   checkBookingIdentity,
   checkCreateContract,
   type Divergence,
 } from '../../src/oracle/booking.oracle';
-import { expect, test, type ApiClients } from '../../src/fixtures/test.fixtures';
+import { expect, test } from '../../src/fixtures/test.fixtures';
 
 async function attachDivergences(testInfo: TestInfo, divergences: Divergence[]): Promise<void> {
   if (divergences.length > 0) {
@@ -18,11 +16,6 @@ async function attachDivergences(testInfo: TestInfo, divergences: Divergence[]):
   }
 }
 
-async function occupiedRanges(api: ApiClients, roomId: number) {
-  const entries = await api.booking.listByRoom(roomId);
-  return entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout }));
-}
-
 /**
  * Escenario API exitoso, parametrizado con dos conjuntos de datos:
  * depósito pagado y no pagado.
@@ -30,7 +23,7 @@ async function occupiedRanges(api: ApiClients, roomId: number) {
  * Nota de contrato: la consulta documentada es GET /api/booking/{id}, pero ese
  * endpoint responde 500 en el entorno actual (BUG-02, ver docs/hallazgos.md y
  * tests/bugs/known-bugs.spec.ts). La identidad se verifica con el listado por
- * habitación GET /api/booking/?roomid=N, que sí está operativo.
+ * habitación GET /api/booking?roomid=N, que sí está operativo.
  */
 const dataSets = [
   { label: 'depósito pagado', depositpaid: true },
@@ -42,14 +35,15 @@ for (const { label, depositpaid } of dataSets) {
     test('crea una reserva y la consulta validando contrato e identidad', async ({
       api,
       roomUnderTest,
+      guest,
+      freeWindow,
     }, testInfo) => {
       const roomId = roomUnderTest.roomid;
-      const window = findFreeWindow(await occupiedRanges(api, roomId));
       const payload: BookingRequest = {
-        ...buildGuest(),
+        ...guest,
         roomid: roomId,
         depositpaid,
-        bookingdates: window,
+        bookingdates: freeWindow,
       };
 
       const createResponse = await api.booking.create(payload);

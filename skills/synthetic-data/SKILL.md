@@ -22,17 +22,25 @@ datos preexistentes (la demo se reinicia).
   y la ventana NO puede solapar reservas existentes (409).
 
 ## Pasos
-1. Huésped nuevo → `buildGuest()` de `src/data/guest.factory.ts`
-   (timestamp en base36 + aleatorio = único por ejecución y por test).
-2. Escenario negativo → `buildGuest({ phone: '123' })` u omitir el campo en el payload.
-3. Fechas → `findFreeWindow(await api.report.bookedRanges(roomId))` de
-   `src/data/date.utils.ts`. Nunca `new Date()` suelto en tests ni fechas literales.
+1. Huésped nuevo → fixture `guest` (inyectada; prepara `buildGuest()` ANTES
+   del test). Fechas libres → fixture `freeWindow` (calcula la ventana desde
+   la ocupación real ANTES del test, via `findFreeWindow()` de
+   `src/data/date.utils.ts`).
+2. Escenario negativo → spread sobre la fixture: `{ ...guest, phone: '123' }`
+   u omitir el campo en el payload.
+3. Solo se usa `buildGuest()` / `findFreeWindow()` directo en el test cuando el
+   escenario necesita una variante que la fixture no modela (ej. una segunda
+   ventana de visualización desplazada).
 4. Parametrización: define datasets como constantes tipadas al inicio del spec
    (ej. depósito pagado / sin depósito) e itera con `for...of` + `test.describe`.
 
 ## Convenciones
-- La data se construye en la fábrica o en utils de `src/data/`, nunca inline en el test
-  salvo el override explícito del escenario.
+- **La preparación de datos vive en fixtures, no en el cuerpo del test**:
+  `guest`, `freeWindow` y `roomUnderTest` se resuelven antes de que el test
+  arranque (equivalente a hooks `beforeEach` declarativos). El test solo
+  declara intención y oráculos.
+- La data se construye en la fábrica o en utils de `src/data/`, nunca inline
+  en el test salvo el override explícito del escenario.
 - Sin librerías externas de fake data: los datos deben ser deterministas y
   trazables (decisión documentada en README).
 - El dato sintético NO define la expectativa: el oráculo compara lo persistido
