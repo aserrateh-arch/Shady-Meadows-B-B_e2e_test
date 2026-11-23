@@ -10,7 +10,7 @@ import { expect, test } from '../../src/fixtures/test.fixtures';
  * contrato documentado, y avisarán ("unexpectedly passed") cuando el
  * entorno se repare — entonces se mueven a la suite estable.
  */
-test.describe('Bugs conocidos del entorno (contrato documentado)', () => {
+test.describe('Bugs conocidos del entorno (contrato documentado)', { tag: '@known-bug' }, () => {
   test('BUG-01: GET /api/room/{id} debe responder 200 con la habitación', async ({
     api,
     roomUnderTest,

@@ -37,7 +37,9 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
     expect(postCount, 'el front no debe reintentar ni duplicar el POST').toBe(1);
   });
 
-  test('ante corte de conexión la UI informa el error (BUG-05: hoy no lo hace)', async ({
+  test('ante corte de conexión la UI informa el error (BUG-05: hoy no lo hace)', {
+    tag: '@known-bug',
+  }, async ({
     bookingFlow,
     reservationPage,
     roomUnderTest,
@@ -62,7 +64,9 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
     await expect(reservationPage.confirmationHeading).toBeHidden();
   });
 
-  test('doble clic en Reserve Now no duplica el envío (BUG-09: no hay guard)', async ({
+  test('doble clic en Reserve Now no duplica el envío (BUG-09: no hay guard)', {
+    tag: '@known-bug',
+  }, async ({
     homePage,
     reservationPage,
     roomUnderTest,

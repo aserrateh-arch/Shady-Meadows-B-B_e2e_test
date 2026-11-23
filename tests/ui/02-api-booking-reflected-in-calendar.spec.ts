@@ -12,7 +12,9 @@ import { expect, test } from '../../src/fixtures/test.fixtures';
  * - GET /api/report/room/{id} → 500: el calendario nunca recibe la ocupación.
  * Fallo esperado: avisará ("unexpectedly passed") cuando el entorno se repare.
  */
-test('una reserva creada por API aparece como ocupada en el calendario', async ({
+test('una reserva creada por API aparece como ocupada en el calendario', {
+  tag: '@known-bug',
+}, async ({
   api,
   reservationPage,
   roomUnderTest,

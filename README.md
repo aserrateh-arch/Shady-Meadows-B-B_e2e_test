@@ -57,6 +57,28 @@ verifier consulta estado, el oráculo juzga, y el spec solo declara el
 escenario y decide el fallo. Un escenario nuevo = un spec nuevo que compone
 esas piezas, sin copiar mecánica.
 
+## Cómo leer la ejecución y el reporte (importante)
+
+La suite tiene dos clases de pruebas, separadas con el tag `@known-bug`:
+
+| Comando | Qué corre | Cómo debe verse |
+|---|---|---|
+| `npm run test:stable` | Los 14 escenarios estables | **100% verdes, sin un solo ✘** |
+| `npm run test:bugs` | Los 12 bugs conocidos del entorno | 12 ✘ **esperados** (cada uno evidencia un bug documentado) |
+| `npm test` | Los 26 juntos | 26 "passed", donde los ✘ son los esperados |
+
+**Semántica clave**: los bugs conocidos usan `test.fail()` ("espero que
+falle"). Playwright los cuenta como *passed* porque fallaron *como se
+esperaba* — en consola y en el reporte HTML aparecen con ✘ pero en verde
+"expected". Por eso `npm test` dice "26 passed" aunque haya 12 ✘. Si algún
+día el entorno se repara, esos tests pasarán y Playwright los marcará
+**unexpectedly passed** (rojo): la suite avisa sola que hay que promoverlos a
+estables.
+
+Para la sustentación: `npm run test:stable` es la señal de calidad
+(todo verde); `npm run test:bugs` es la evidencia de bugs (cada ✘ abre su
+hallazgo con adjuntos en el reporte HTML).
+
 ## Reporte y evidencias
 
 **Herramienta: el reporter HTML nativo de Playwright** (decisión deliberada

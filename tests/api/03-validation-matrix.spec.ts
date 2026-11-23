@@ -55,7 +55,7 @@ const businessRules: Array<{ label: string; bug: string; overrides: PayloadOverr
   { label: 'checkout anterior al checkin (esperado 400, observado 409 genérico)', bug: 'BUG-08', overrides: { bookingdates: { checkin: '2027-03-05', checkout: '2027-03-03' } } },
 ];
 
-test.describe('reglas de negocio no enforced por el backend', () => {
+test.describe('reglas de negocio no enforced por el backend', { tag: '@known-bug' }, () => {
   for (const { label, bug, overrides } of businessRules) {
     test(`${bug}: debería rechazar ${label}`, async ({
       api,
