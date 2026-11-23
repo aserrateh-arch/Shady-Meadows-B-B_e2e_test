@@ -51,7 +51,6 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
   por entorno y corre como fallo esperado (`test.fail()`).
 
 ## BUG-05 — La UI no informa nada ante un corte de conexión en el alta
-
 - **Pasos**: mock de red (`route.abort('connectionfailed')`) sobre el POST
   `/api/booking` durante una reserva por UI; observar la pantalla.
 - **Esperado (UX)**: mensaje de error visible para el usuario.
@@ -61,6 +60,45 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
 - **Impacto**: el usuario no sabe si reservó o no; riesgo de doble envío
   manual. Nota: tampoco existe guard de doble clic en "Reserve Now".
 - **Evidencia**: `tests/ui/booking.resilience.spec.ts` (fallo esperado).
+
+## BUG-06 — El backend acepta reservas con check-in en el pasado
+
+- **Pasos**: `POST /api/booking` con `bookingdates.checkin` = 2020-01-01.
+- **Esperado (negocio)**: 400 de validación.
+- **Observado**: 201 Created, la reserva queda persistida.
+- **Evidencia**: `tests/api/booking.validation-matrix.spec.ts` (fallo esperado).
+
+## BUG-07 — El backend acepta teléfonos no numéricos
+
+- **Pasos**: `POST /api/booking` con `phone: "abcdefghijk"` (11 caracteres).
+- **Esperado (negocio)**: 400 de validación de formato.
+- **Observado**: 201 Created. El contrato Postman solo exige tamaño 11–21, así
+  que es divergencia de regla de negocio, no de contrato estricto.
+- **Evidencia**: misma spec (fallo esperado).
+
+## BUG-08 — Fechas invertidas o iguales responden 409 genérico
+
+- **Pasos**: `POST /api/booking` con checkout < checkin, o checkin == checkout.
+- **Esperado**: 400 con mensaje de validación de fechas.
+- **Observado**: 409 `{"error":"Failed to create booking"}` — semántica de
+  status incorrecta y mensaje indistinguible de un conflicto de disponibilidad.
+- **Impacto**: el front (y cualquier consumidor) no puede diferenciar "fechas
+  inválidas" de "habitación ocupada" (ver BUG-09).
+
+## BUG-09 — Doble clic en "Reserve Now" revienta la aplicación
+
+- **Pasos**: mock de latencia (3 s) en el POST `/api/booking`; doble clic en
+  "Reserve Now" antes de que llegue la primera respuesta.
+- **Esperado**: guard de doble envío (botón deshabilitado); una sola reserva.
+- **Observado**: se envían 2 POST. El primero crea la reserva (201); el segundo
+  choca por conflicto (409) con cuerpo `{"error": ...}` **sin** propiedad
+  `errors`. El front hace `setBookingErrors(errorData.errors)` → `undefined`,
+  y el render revienta en `bookingErrors.length`: la app entera cae en la
+  página de error "This page couldn't load". La reserva SÍ quedó creada,
+  pero el usuario ve una pantalla rota y probablemente reintentará
+  (riesgo de reservas duplicadas por reintento manual).
+- **Evidencia**: `tests/ui/booking.resilience.spec.ts` (fallo esperado),
+  `error-context.md` de la ejecución.
 
 ## Divergencias menores (no bug, comportamiento a conocer)
 

@@ -79,4 +79,54 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
     await expect(reservationPage.errorAlert).toBeVisible();
     await expect(reservationPage.confirmationHeading).toBeHidden();
   });
+
+  test('doble clic en Reserve Now no duplica el envío (BUG-09: no hay guard)', async ({
+    api,
+    homePage,
+    reservationPage,
+    roomUnderTest,
+    roomDetailWorkaround,
+    page,
+  }) => {
+    test.fail();
+    void roomDetailWorkaround;
+    let postCount = 0;
+    await page.route(/\/api\/booking\/?$/, async (route) => {
+      if (route.request().method() === 'POST') {
+        postCount += 1;
+        await new Promise((resolve) => setTimeout(resolve, 3_000)); // ventana de latencia
+        return route.continue();
+      }
+      return route.continue();
+    });
+
+    const entries = await api.booking.listByRoom(roomUnderTest.roomid);
+    const window = findFreeWindow(
+      entries.map((e) => ({ start: e.bookingdates.checkin, end: e.bookingdates.checkout })),
+    );
+    const guest = buildGuest();
+
+    await homePage.goto();
+    await homePage.openReservation(roomUnderTest);
+    await reservationPage.setDates(roomUnderTest.roomid, window);
+    await reservationPage.openGuestForm();
+    await reservationPage.fillGuestForm(guest);
+    await reservationPage.reserveNowButton.dblclick();
+
+    // Comportamiento correcto: una sola petición, confirmación sin errores,
+    // exactamente una reserva persistida.
+    await expect(reservationPage.confirmationHeading).toBeVisible({ timeout: 20_000 });
+    await expect(reservationPage.errorAlert).toBeHidden();
+    expect(postCount, 'el doble clic no debe producir dos POST').toBe(1);
+
+    const bookings = await api.booking.listByRoom(roomUnderTest.roomid);
+    const matches = bookings.filter(
+      (b) =>
+        b.bookingdates.checkin === window.checkin &&
+        b.bookingdates.checkout === window.checkout &&
+        b.firstname === guest.firstname &&
+        b.lastname === guest.lastname,
+    );
+    expect(matches.length, 'no debe persistirse más de una reserva').toBe(1);
+  });
 });
