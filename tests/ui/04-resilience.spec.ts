@@ -1,3 +1,4 @@
+import { attachScreenshot } from '../../src/oracle/reporting';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
@@ -15,7 +16,7 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
     freeWindow,
     verifier,
     page,
-  }) => {
+  }, testInfo) => {
     void roomDetailWorkaround;
     let postCount = 0;
     await page.route(/\/api\/booking\/?$/, async (route) => {
@@ -27,10 +28,11 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
       return route.continue();
     });
 
-    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow);
+    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, testInfo);
 
     await expect(reservationPage.confirmationHeading).toBeVisible({ timeout: 20_000 });
     await expect(reservationPage.errorAlert).toBeHidden();
+    await attachScreenshot(testInfo, page, 'confirmacion-tras-latencia');
 
     const matches = await verifier.findAllByIdentity(roomUnderTest.roomid, guest, freeWindow);
     expect(matches.length, 'la lentitud no debe duplicar la reserva').toBe(1);
@@ -47,8 +49,7 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
     guest,
     freeWindow,
     page,
-  }) => {
-    test.fail();
+  }, testInfo) => {
     void roomDetailWorkaround;
     await page.route(/\/api\/booking\/?$/, (route) => {
       if (route.request().method() === 'POST') {
@@ -57,9 +58,11 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
       return route.continue();
     });
 
-    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow);
+    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, testInfo);
 
     // Expectativa de UX: un fallo de red debe ser visible para el usuario.
+    // La foto evidencia el estado real: sin alerta, sin feedback (BUG-05).
+    await attachScreenshot(testInfo, page, 'BUG-05-sin-feedback-tras-corte-de-red');
     await expect(reservationPage.errorAlert).toBeVisible();
     await expect(reservationPage.confirmationHeading).toBeHidden();
   });
@@ -75,8 +78,7 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
     freeWindow,
     verifier,
     page,
-  }) => {
-    test.fail();
+  }, testInfo) => {
     void roomDetailWorkaround;
     let postCount = 0;
     await page.route(/\/api\/booking\/?$/, async (route) => {
@@ -96,7 +98,9 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
     await reservationPage.reserveNowButton.dblclick();
 
     // Comportamiento correcto: una sola petición, confirmación sin errores,
-    // exactamente una reserva persistida.
+    // exactamente una reserva persistida. La foto captura el estado real
+    // (BUG-09: hoy la app revienta en "This page couldn't load").
+    await attachScreenshot(testInfo, page, 'BUG-09-estado-tras-doble-clic');
     await expect(reservationPage.confirmationHeading).toBeVisible({ timeout: 20_000 });
     await expect(reservationPage.errorAlert).toBeHidden();
     expect(postCount, 'el doble clic no debe producir dos POST').toBe(1);

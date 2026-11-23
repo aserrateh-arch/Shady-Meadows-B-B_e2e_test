@@ -1,5 +1,5 @@
 import { checkBookingIdentity } from '../../src/oracle/booking.oracle';
-import { attachDivergences } from '../../src/oracle/reporting';
+import { attachDivergences, attachScreenshot } from '../../src/oracle/reporting';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
@@ -19,11 +19,13 @@ test('reservar por UI, confirmar en pantalla y verificar el registro por API', a
   guest,
   freeWindow,
   verifier,
+  page,
 }, testInfo) => {
   void roomDetailWorkaround;
 
-  await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow);
+  await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, testInfo);
   await reservationPage.expectConfirmation(freeWindow);
+  await attachScreenshot(testInfo, page, 'paso-2-confirmacion-ui');
 
   const match = await verifier.findByIdentity(roomUnderTest.roomid, guest, freeWindow);
   if (!match) {

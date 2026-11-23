@@ -4,9 +4,10 @@
   "private": true,
   "description": "Prueba técnica QE: automatización API + UI de Restful Booker Platform con Playwright (POM + Flows + Fixtures + Oracle)",
   "scripts": {
-    "test": "playwright test",
+    "test": "playwright test --grep-invert @known-bug",
     "test:stable": "playwright test --grep-invert @known-bug",
     "test:bugs": "playwright test --grep @known-bug",
+    "test:all": "playwright test",
     "test:api": "playwright test tests/api",
     "test:ui": "playwright test tests/ui",
     "test:headed": "playwright test --headed",

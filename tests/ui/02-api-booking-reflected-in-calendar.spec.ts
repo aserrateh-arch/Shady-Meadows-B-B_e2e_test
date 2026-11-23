@@ -22,7 +22,6 @@ test('una reserva creada por API aparece como ocupada en el calendario', {
   freeWindow,
   verifier,
 }) => {
-  test.fail();
   const roomId = roomUnderTest.roomid;
 
   // Ventana de visualización distinta a la reservada, para distinguir el

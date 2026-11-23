@@ -48,7 +48,7 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
 - **Observado**: 500.
 - **Impacto**: el calendario de la UI nunca muestra ocupación; el escenario
   "API → UI" (agendar por API y ver el bloqueo en el front) queda bloqueado
-  por entorno y corre como fallo esperado (`test.fail()`).
+  por entorno y corre en la suite de bugs (`npm run test:bugs`, rojo mientras exista).
 
 ## BUG-05 — La UI no informa nada ante un corte de conexión en el alta
 - **Pasos**: mock de red (`route.abort('connectionfailed')`) sobre el POST
@@ -59,14 +59,14 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
   La pantalla queda en el formulario sin feedback alguno.
 - **Impacto**: el usuario no sabe si reservó o no; riesgo de doble envío
   manual. Nota: tampoco existe guard de doble clic en "Reserve Now".
-- **Evidencia**: `tests/ui/04-resilience.spec.ts` (fallo esperado).
+- **Evidencia**: `tests/ui/04-resilience.spec.ts` (suite de bugs, rojo con evidencia).
 
 ## BUG-06 — El backend acepta reservas con check-in en el pasado
 
 - **Pasos**: `POST /api/booking` con `bookingdates.checkin` = 2020-01-01.
 - **Esperado (negocio)**: 400 de validación.
 - **Observado**: 201 Created, la reserva queda persistida.
-- **Evidencia**: `tests/api/03-validation-matrix.spec.ts` (fallo esperado).
+- **Evidencia**: `tests/api/03-validation-matrix.spec.ts` (suite de bugs, rojo con evidencia).
 
 ## BUG-07 — El backend acepta teléfonos no numéricos
 
@@ -74,7 +74,7 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
 - **Esperado (negocio)**: 400 de validación de formato.
 - **Observado**: 201 Created. El contrato Postman solo exige tamaño 11–21, así
   que es divergencia de regla de negocio, no de contrato estricto.
-- **Evidencia**: misma spec (fallo esperado).
+- **Evidencia**: misma spec (suite de bugs, rojo con evidencia).
 
 ## BUG-08 — Fechas invertidas o iguales responden 409 genérico
 
@@ -97,7 +97,7 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
   página de error "This page couldn't load". La reserva SÍ quedó creada,
   pero el usuario ve una pantalla rota y probablemente reintentará
   (riesgo de reservas duplicadas por reintento manual).
-- **Evidencia**: `tests/ui/04-resilience.spec.ts` (fallo esperado),
+- **Evidencia**: `tests/ui/04-resilience.spec.ts` (suite de bugs, rojo con evidencia),
   `error-context.md` de la ejecución.
 
 ## BUG-10 — `bookingdates` null o ausente cuelga el endpoint (sin respuesta HTTP)

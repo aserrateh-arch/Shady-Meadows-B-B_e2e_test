@@ -15,7 +15,6 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', { tag: '@know
     api,
     roomUnderTest,
   }) => {
-    test.fail();
     const response = await api.room.getById(roomUnderTest.roomid);
     expect(response.status()).toBe(200);
     const room = (await response.json()) as { roomid: number };
@@ -26,7 +25,6 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', { tag: '@know
     reservationPage,
     roomUnderTest,
   }) => {
-    test.fail();
     await reservationPage.gotoWithDates(roomUnderTest.roomid, {
       checkin: '2027-01-10',
       checkout: '2027-01-12',
@@ -40,7 +38,6 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', { tag: '@know
     guest,
     freeWindow,
   }) => {
-    test.fail();
     const payload: BookingRequest = {
       ...guest,
       roomid: roomUnderTest.roomid,
@@ -64,7 +61,6 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', { tag: '@know
     guest,
     freeWindow,
   }, testInfo) => {
-    test.fail();
     const payload: BookingRequest = {
       ...guest,
       roomid: roomUnderTest.roomid,

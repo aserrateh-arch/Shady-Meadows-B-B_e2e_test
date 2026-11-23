@@ -1,8 +1,9 @@
 # Matriz de escenarios — 26 pruebas
 
 Listado explícito de todos los escenarios (también visible con
-`npx playwright test --list`). Estado: ✅ estable · ⚠️ fallo esperado
-(`test.fail`, documentado en [`hallazgos.md`](hallazgos.md)).
+`npx playwright test --list`). Estado: ✅ estable (suite `npm test`, siempre verde) · ⚠️ bug conocido
+(suite `npm run test:bugs`: **falla en rojo** mientras el bug exista, documentado en
+[`hallazgos.md`](hallazgos.md)).
 
 ## API (`tests/api/`)
 

@@ -11,7 +11,7 @@ Además de las implementadas (`api-contract-testing`, `oracle-testing`,
 - **Usuario**: QE y desarrolladores al integrar una API nueva o al versionar una existente.
 - **Entradas**: URL/archivo de la colección Postman u OpenAPI; lista de endpoints en scope.
 - **Salidas**: `Divergence[]` por endpoint + `docs/hallazgos.md` actualizado + spec de
-  bugs conocidos (`test.fail()`) generado.
+  bugs conocidos (tag `@known-bug`) generado.
 - **Verificación**: el spec generado compila (`npm run typecheck`) y cada divergencia
   queda con esperado/observado/evidencia.
 - **Prioridad**: **ALTA — construiría esta primero.** En esta misma prueba, tres de los

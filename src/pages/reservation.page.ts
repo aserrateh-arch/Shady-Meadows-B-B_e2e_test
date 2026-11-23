@@ -32,6 +32,11 @@ export class ReservationPage {
     this.errorAlert = page.locator('.alert-danger');
   }
 
+  /** Foto del estado actual de la página (para evidencia por pasos). */
+  async takeScreenshot(): Promise<Buffer> {
+    return this.page.screenshot({ fullPage: true });
+  }
+
   /** Eventos (ocupados o seleccionados) visibles en el calendario. */
   calendarEvents(): Locator {
     return this.page.locator('.rbc-event');

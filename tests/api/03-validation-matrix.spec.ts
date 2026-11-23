@@ -63,7 +63,6 @@ test.describe('reglas de negocio no enforced por el backend', { tag: '@known-bug
       guest,
       freeWindow,
     }, testInfo) => {
-      test.fail();
       const payload = {
         ...guest,
         roomid: roomUnderTest.roomid,
@@ -95,7 +94,6 @@ test.describe('reglas de negocio no enforced por el backend', { tag: '@known-bug
       guest,
       freeWindow,
     }) => {
-      test.fail();
       const payload: Record<string, unknown> = {
         ...guest,
         roomid: roomUnderTest.roomid,

@@ -51,7 +51,7 @@ Las skills usadas por escenario:
    aserciones.
 3. **Revisión de aserciones**: se verificó que ninguna expectativa se derivó
    del comportamiento observado a posteriori. Las divergencias reales
-   (BUG-01…04) quedaron como `test.fail()` documentado, no como aserciones
+   (BUG-01…04) quedaron en la suite de bugs (rojo, tag `@known-bug`), no como aserciones
    relajadas.
 4. **Workaround acotado**: ante BUG-01 (UI de reserva imposible), se aprobó
    interceptar **solo** la lectura de habitación con datos reales del listado,
@@ -62,7 +62,7 @@ Las skills usadas por escenario:
 ## Lo que NO se ocultó
 
 - 4 bugs del entorno documentados con pasos/esperado/observado.
-- El escenario API→UI queda bloqueado por entorno (fallo esperado), no
+- El escenario API→UI queda bloqueado por entorno (suite de bugs, rojo), no
   "adaptado para pasar".
 - El contrato documentado de eco completo (email/phone) no se cumple: está en
   BUG-03, no se eliminó la verificación del oráculo.

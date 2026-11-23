@@ -24,7 +24,7 @@ flujo sigue contra el backend real.
 3. **Declarar el mock explícitamente** en el comentario del spec: qué se
    intercepta, por qué y qué NO está mockeado.
 4. **No mockear para que una prueba pase**: si el comportamiento observado es
-   incorrecto, el test se marca `test.fail()` y se documenta en
+   incorrecto, el test se taggea `@known-bug` (falla en rojo) y se documenta en
    `docs/hallazgos.md` — nunca se ajusta el mock para esconderlo.
 5. Excepción única permitida fuera de esta clase: `roomDetailWorkaround`
    (BUG-01), documentada en fixtures y hallazgos.
@@ -45,7 +45,8 @@ flujo sigue contra el backend real.
 3. Ejecuta el flujo con POM/Flow (nunca locators en el test).
 4. Verifica UI (alerta/confirmación) **y** estado real por API (una sola
    reserva, conteo de POSTs con un contador en el route handler).
-5. Si falla el comportamiento esperado: `test.fail()` + hallazgo documentado.
+5. Si falla el comportamiento esperado: tag `@known-bug` + hallazgo documentado
+   (la suite de bugs corre roja hasta que se repare).
 
 ## Verificación
 ```bash

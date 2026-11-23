@@ -1,3 +1,4 @@
+import { attachScreenshot } from '../../src/oracle/reporting';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
@@ -16,7 +17,7 @@ test('muestra el error y no confirma cuando el alta falla con 500', async ({
   guest,
   freeWindow,
   page,
-}) => {
+}, testInfo) => {
   void roomDetailWorkaround;
   await page.route(/\/api\/booking\/?$/, (route) => {
     if (route.request().method() === 'POST') {
@@ -29,8 +30,9 @@ test('muestra el error y no confirma cuando el alta falla con 500', async ({
     return route.continue();
   });
 
-  await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow);
+  await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, testInfo);
 
   await expect(reservationPage.errorAlert).toBeVisible();
   await expect(reservationPage.confirmationHeading).toBeHidden();
+  await attachScreenshot(testInfo, page, 'error-500-visible-en-ui');
 });

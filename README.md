@@ -43,7 +43,7 @@ tests/           SOLO escenarios declarativos (sin mecánica); ver matriz en
                  docs/escenarios.md — archivos numerados por escenario
   api/           01 alta parametrizada x2 · 02 rechazo · 03 matriz de validación
   ui/            01 integración UI+API · 02 API→UI · 03 mock de fallo · 04 resiliencia
-  bugs/          01 contrato documentado que el entorno no cumple (test.fail)
+  bugs/          01 contrato documentado que el entorno no cumple (@known-bug)
 skills/          api-contract-testing, oracle-testing, synthetic-data,
                  mock-resilience-testing
 agents/          qa-orchestrator (orquesta las skills)
@@ -61,23 +61,26 @@ esas piezas, sin copiar mecánica.
 
 La suite tiene dos clases de pruebas, separadas con el tag `@known-bug`:
 
-| Comando | Qué corre | Cómo debe verse |
-|---|---|---|
-| `npm run test:stable` | Los 14 escenarios estables | **100% verdes, sin un solo ✘** |
-| `npm run test:bugs` | Los 12 bugs conocidos del entorno | 12 ✘ **esperados** (cada uno evidencia un bug documentado) |
-| `npm test` | Los 26 juntos | 26 "passed", donde los ✘ son los esperados |
+| Comando | Qué corre | Cómo debe verse | Exit code |
+|---|---|---|---|
+| `npm test` (= `test:stable`) | Los 14 escenarios estables | **100% verdes, sin un solo rojo** | 0 |
+| `npm run test:bugs` | Los 12 bugs conocidos | **12 en ROJO** — cada fallo ES la evidencia del bug | 1 mientras existan bugs |
+| `npm run test:all` | Los 26 juntos | 14 verdes + 12 rojos | 1 mientras existan bugs |
 
-**Semántica clave**: los bugs conocidos usan `test.fail()` ("espero que
-falle"). Playwright los cuenta como *passed* porque fallaron *como se
-esperaba* — en consola y en el reporte HTML aparecen con ✘ pero en verde
-"expected". Por eso `npm test` dice "26 passed" aunque haya 12 ✘. Si algún
-día el entorno se repara, esos tests pasarán y Playwright los marcará
-**unexpectedly passed** (rojo): la suite avisa sola que hay que promoverlos a
-estables.
+**Semántica clave**: los bugs conocidos NO se maquillan — fallan en rojo con
+su evidencia adjunta (fotos, respuestas, traces). Viven en una suite aparte
+para no contaminar la señal de calidad. Cuando el entorno se repare,
+`npm run test:bugs` quedará verde (exit 0): esa es la señal para promover
+esos tests a la suite estable.
 
-Para la sustentación: `npm run test:stable` es la señal de calidad
-(todo verde); `npm run test:bugs` es la evidencia de bugs (cada ✘ abre su
-hallazgo con adjuntos en el reporte HTML).
+Para la sustentación: `npm test` demuestra calidad (todo verde);
+`npm run test:bugs` demuestra los hallazgos (todo rojo, con evidencia).
+
+**Fotos por paso**: los escenarios UI registran sus pasos con `test.step()`
+y adjuntan capturas de pantalla (`paso-1-formulario-diligenciado`,
+`paso-2-confirmacion-ui`, estados de error de BUG-05/09…). En el reporte HTML
+cada escenario muestra su línea de tiempo por pasos y sus fotos; en fallos hay
+además trace, video y screenshot automáticos.
 
 ## Reporte y evidencias
 
@@ -135,19 +138,21 @@ validaciones de negocio ausentes, endpoint colgado ante `bookingdates` nulo,
 crashes de UI ante fallos). Detalle, pasos y evidencia en
 [`docs/hallazgos.md`](docs/hallazgos.md). Consecuencias honestas en la suite:
 
-- Los tests de esos contratos corren con `test.fail()` — **fallan hoy y
-  avisarán solos cuando el entorno se repare**.
+- Los tests de esos contratos corren en la suite de bugs (`@known-bug`) —
+  **fallan en rojo con evidencia hoy y quedarán verdes cuando el entorno se
+  repare** (señal para promoverlos a estables).
 - El escenario UI+API usa `roomDetailWorkaround`: intercepta **solo** la
   lectura rota de habitación con datos reales del listado; el alta y la
   verificación son 100 % backend real.
 - El escenario API→UI (agendar por API y ver el bloqueo en el calendario)
-  queda como fallo esperado: el calendario no puede recibir la ocupación
+  corre en la suite de bugs: el calendario no puede recibir la ocupación
   porque el endpoint de reporte por habitación está roto.
 
 ## Cómo usarla otra persona (o un agente)
 
 1. Clona, `npm install`, `npx playwright install chromium`.
-2. `npm test` — todo debe quedar verde en ~40 s.
+2. `npm test` — los 14 escenarios estables deben quedar 100% verdes (~40 s).
+   `npm run test:bugs` muestra los 12 hallazgos fallando en rojo con evidencia.
 3. Para agregar un escenario: lee `agents/qa-orchestrator/AGENT.md` y la skill
    del canal correspondiente (`skills/*/SKILL.md`).
 4. Credenciales admin de la demo: `admin` / `password` (públicas), variables
@@ -157,9 +162,9 @@ crashes de UI ante fallos). Detalle, pasos y evidencia en
 
 - **Smoke (bloquea PR)**: `tests/api` + `tests/ui/01-book-room-ui-verify-api.spec.ts`
   — alta, rechazo y flujo integrado. `npx playwright test tests/api tests/ui/01-book-room-ui-verify-api.spec.ts`.
-- **Regresión (pipeline nocturno)**: suite completa incluyendo mocks y bugs
-  conocidos. El exit code es semántico: los `test.fail()` documentados no
-  bloquean; cualquier otro rojo sí.
+- **Regresión (pipeline nocturno)**: `npm test` (estable) debe pasar siempre;
+  `npm run test:bugs` corre aparte y su exit 1 es esperado mientras los bugs
+  del entorno existan — se monitorea como tendencia, no como bloqueo.
 - El reporte HTML (`playwright-report/`) se publica como artefacto del pipeline.
 
 ## Uso de IA

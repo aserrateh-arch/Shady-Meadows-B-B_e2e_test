@@ -18,7 +18,7 @@ screenshot, video, `error-context.md`).
 
 > Los mocks se rigen por la skill `mock-resilience-testing`: perturbación
 > mínima y declarada, verificación de negocio siempre contra el backend real.
-| Bugs del entorno / reglas no enforced (BUG-01…10) | 12 | ✔ fallos esperados (`test.fail`) | Contrato documentado que el sistema no cumple |
+| Bugs del entorno / reglas no enforced (BUG-01…10) | 12 | 🔴 rojos por diseño (`npm run test:bugs`) | Contrato documentado que el sistema no cumple |
 
 ## Riesgos principales detectados
 
@@ -44,7 +44,7 @@ Detalle completo con pasos/esperado/observado en [`hallazgos.md`](hallazgos.md).
 - **BUG-01 obliga al workaround** `roomDetailWorkaround` en los tests de UI de
   reserva: se intercepta solo la lectura de habitación (con datos reales del
   listado). El alta y la verificación son backend real.
-- **El escenario API→UI queda como fallo esperado**: el calendario no puede
+- **El escenario API→UI corre en la suite de bugs (rojo)**: el calendario no puede
   reflejar lo agendado porque `GET /api/report/room/{id}` está roto (BUG-04).
 - **Email/phone no verificables por API** (BUG-03): la verificación cruzada
   UI→API usa nombre + apellido + fechas.
