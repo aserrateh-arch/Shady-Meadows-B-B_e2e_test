@@ -24,6 +24,8 @@ especializadas en lugar de improvisar convenciones.
    `ReservationPage` y `BookingFlow` inyectados por fixtures. Si falta una
    interacción, se agrega al Page Object (locator estable: rol/nombre o
    `input[name]`, prohibido CSS generado, XPath posicional y `waitForTimeout`).
+5. **Mocks / resiliencia** → skill `mock-resilience-testing`: perturbación
+   mínima y declarada, verificación de negocio siempre contra backend real.
 5. **Fixtures**: todo servicio (clientes API, POMs, flows, habitación por worker)
    se inyecta desde `src/fixtures/test.fixtures.ts`. Un recurso nuevo = fixture nueva.
 

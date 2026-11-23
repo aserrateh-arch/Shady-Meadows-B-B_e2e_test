@@ -22,7 +22,8 @@ Las skills usadas por escenario:
 | API éxito (x2) / API negativa | `api-contract-testing` + `synthetic-data` + `oracle-testing` |
 | Integración UI + API | `qa-orchestrator` (POM+Flows+fixtures) + las tres anteriores |
 | API → UI (reflejo en calendario) | `api-contract-testing` + `oracle-testing` (oráculo de efectos) |
-| Mock de fallo (500 simulado) | `oracle-testing` (oráculo de UI ante fallo) |
+| Mock de fallo (500 simulado) | `mock-resilience-testing` + `oracle-testing` (oráculo de UI ante fallo) |
+| Resiliencia (latencia, corte, doble clic) | `mock-resilience-testing` + verificación por API |
 
 ## Cambios producidos por el agente
 

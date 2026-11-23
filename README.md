@@ -43,7 +43,8 @@ tests/
   ui/         Integración UI+API, API→UI (bloqueado por bugs), mocks de fallo
               y resiliencia (500, corte de conexión, latencia)
   bugs/       Contrato documentado que el entorno no cumple (test.fail)
-skills/       api-contract-testing, oracle-testing, synthetic-data
+skills/       api-contract-testing, oracle-testing, synthetic-data,
+              mock-resilience-testing
 agents/       qa-orchestrator (orquesta las skills)
 docs/         hallazgos (bugs), casos priorizados, skills propuestas, evidencia IA
 ```

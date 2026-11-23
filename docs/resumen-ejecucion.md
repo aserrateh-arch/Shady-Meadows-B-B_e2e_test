@@ -15,6 +15,9 @@ screenshot, video, `error-context.md`).
 | UI+API integrada (reserva por UI, verificación por API) | 1 | ✅ estable* | Consistencia entre canales (*usa workaround acotado de BUG-01) |
 | Mock de fallo 500 en el alta | 1 | ✅ estable | UX ante error del backend |
 | Resiliencia: lentitud inyectada | 1 | ✅ estable | Tolerancia a latencia sin duplicar reserva |
+
+> Los mocks se rigen por la skill `mock-resilience-testing`: perturbación
+> mínima y declarada, verificación de negocio siempre contra el backend real.
 | Bugs del entorno / reglas no enforced (BUG-01…10) | 12 | ✔ fallos esperados (`test.fail`) | Contrato documentado que el sistema no cumple |
 
 ## Riesgos principales detectados
