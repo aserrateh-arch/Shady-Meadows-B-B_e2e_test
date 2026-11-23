@@ -100,6 +100,19 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
 - **Evidencia**: `tests/ui/booking.resilience.spec.ts` (fallo esperado),
   `error-context.md` de la ejecución.
 
+## BUG-10 — `bookingdates` null o ausente cuelga el endpoint (sin respuesta HTTP)
+
+- **Pasos**: `POST /api/booking` con `bookingdates: null` o sin la propiedad.
+- **Esperado (contrato)**: 400 con mensaje de validación.
+- **Observado**: el servidor **nunca responde** — la conexión queda colgada
+  hasta timeout/reset (verificado con curl y con Playwright, timeout 10 s).
+  Ni siquiera hay status HTTP.
+- **Impacto**: el más grave de los encontrados — un payload malformado deja
+  conexiones colgadas (riesgo de agotamiento de recursos / DoS accidental) y
+  cualquier consumidor queda esperando indefinidamente.
+- **Evidencia**: `tests/api/booking.validation-matrix.spec.ts` (2 fallos
+  esperados, ~10 s cada uno por el timeout de la llamada).
+
 ## Divergencias menores (no bug, comportamiento a conocer)
 
 - Las rutas con trailing slash (`/api/room/`, `/api/booking/`) responden 308

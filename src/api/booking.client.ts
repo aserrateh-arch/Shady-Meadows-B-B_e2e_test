@@ -12,8 +12,8 @@ import type { BookingListEntry, BookingRequest } from './types';
 export class BookingClient {
   constructor(private readonly request: APIRequestContext) {}
 
-  create(payload: Partial<BookingRequest>): Promise<APIResponse> {
-    return this.request.post('/api/booking', { data: payload });
+  create(payload: Partial<BookingRequest>, options?: { timeout?: number }): Promise<APIResponse> {
+    return this.request.post('/api/booking', { data: payload, timeout: options?.timeout });
   }
 
   /** Endpoint documentado para consultar una reserva por id. */

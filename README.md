@@ -63,10 +63,11 @@ docs/         hallazgos (bugs), casos priorizados, skills propuestas, evidencia 
 
 ## Estado del entorno (importante)
 
-La demo actual tiene **9 hallazgos confirmados** que rompen parte del contrato
+La demo actual tiene **10 hallazgos confirmados** que rompen parte del contrato
 o de las reglas de negocio (`GET /api/room/{id}` y `GET /api/booking/{id}` →
-500, alta sin eco de email/phone, `GET /api/report/room/{id}` → 500, validaciones
-de negocio ausentes, crashes de UI ante fallos). Detalle, pasos y evidencia en
+500, alta sin eco de email/phone, `GET /api/report/room/{id}` → 500,
+validaciones de negocio ausentes, endpoint colgado ante `bookingdates` nulo,
+crashes de UI ante fallos). Detalle, pasos y evidencia en
 [`docs/hallazgos.md`](docs/hallazgos.md). Consecuencias honestas en la suite:
 
 - Los tests de esos contratos corren con `test.fail()` — **fallan hoy y

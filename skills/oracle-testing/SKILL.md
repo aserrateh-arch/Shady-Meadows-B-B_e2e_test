@@ -14,13 +14,17 @@ se compara con el comportamiento observado y toda diferencia se registra como
 - El artefacto bajo prueba: respuesta de API, estado persistido o salida de UI.
 - La fuente del contrato: docs de la API, invariantes de negocio o el payload enviado.
 
-## Los cuatro oráculos del proyecto
-1. **Contrato de status**: POST /booking/ → 201; inválido → 400; GET by id → 200.
-2. **Contrato de datos**: el recurso consultado es eco exacto de lo enviado
+## Los oráculos del proyecto
+1. **Contrato de status**: POST /booking → 201; inválido → 400; GET by id → 200.
+2. **Contrato de headers**: toda respuesta JSON lleva `content-type: application/json`.
+3. **Contrato de esquema** (`src/oracle/schema.checker.ts` + `contracts.ts`):
+   campos requeridos presentes y NO nulos, tipos, formatos (ISO date, email),
+   sin campos inesperados.
+4. **Contrato de datos**: el recurso consultado es eco exacto de lo enviado
    (huésped, habitación, fechas ISO, depositpaid).
-3. **Oráculo de efectos**: una reserva creada aparece en /report/ y bloquea el
-   calendario UI; una rechazada NO persiste (diff de bookingids antes/después).
-4. **Oráculo de UI**: confirmación visible con las fechas exactas; ante fallo
+5. **Oráculo de efectos**: una reserva creada aparece en el listado por
+   habitación; una rechazada NO persiste (diff de bookingids antes/después).
+6. **Oráculo de UI**: confirmación visible con las fechas exactas; ante fallo
    (mock), error visible y confirmación ausente.
 
 ## Pasos

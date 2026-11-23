@@ -2,6 +2,8 @@ import type { BookingRequest } from '../../src/api/types';
 import { buildGuest } from '../../src/data/guest.factory';
 import { findFreeWindow } from '../../src/data/date.utils';
 import { checkFullBookingContract } from '../../src/oracle/booking.oracle';
+import { CREATE_BOOKING_RESPONSE_DOCUMENTED } from '../../src/oracle/contracts';
+import { checkSchema } from '../../src/oracle/schema.checker';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
@@ -63,7 +65,7 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', () => {
   test('BUG-03: el alta debe devolver email y phone del huésped (contrato documentado)', async ({
     api,
     roomUnderTest,
-  }) => {
+  }, testInfo) => {
     test.fail();
     const entries = await api.booking.listByRoom(roomUnderTest.roomid);
     const window = findFreeWindow(
@@ -78,7 +80,19 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', () => {
     const createResponse = await api.booking.create(payload);
     expect(createResponse.status()).toBe(201);
     const body = (await createResponse.json()) as Record<string, unknown>;
-    expect(body.email, 'la respuesta del alta debe incluir email').toBe(payload.email);
-    expect(body.phone, 'la respuesta del alta debe incluir phone').toBe(payload.phone);
+
+    // Contrato documentado completo: esquema exhaustivo (requeridos, tipos,
+    // formatos, nulabilidad, sin campos inesperados).
+    const schemaDivergences = checkSchema(body, CREATE_BOOKING_RESPONSE_DOCUMENTED);
+    if (schemaDivergences.length > 0) {
+      await testInfo.attach('divergencias-esquema', {
+        body: JSON.stringify(schemaDivergences, null, 2),
+        contentType: 'application/json',
+      });
+    }
+    expect(
+      schemaDivergences,
+      'el alta debe devolver el esquema documentado completo (incluye email y phone)',
+    ).toEqual([]);
   });
 });

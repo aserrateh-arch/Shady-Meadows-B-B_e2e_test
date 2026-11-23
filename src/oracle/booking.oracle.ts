@@ -1,5 +1,7 @@
 import type { APIResponse } from '@playwright/test';
 import type { BookingListEntry, BookingRequest } from '../api/types';
+import { CREATE_BOOKING_RESPONSE_MIN, ERROR_BODY } from './contracts';
+import { checkHeaders, checkSchema } from './schema.checker';
 
 /**
  * Oráculo de contrato: codifica lo que la DOCUMENTACIÓN de la API promete
@@ -34,21 +36,23 @@ function isIsoDate(value: unknown): boolean {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
-/** Contrato de POST /api/booking/: 201 Created y cuerpo con la reserva completa. */
+/** Contrato de POST /api/booking/: 201, JSON, esquema y bookingid válido. */
 export async function checkCreateContract(response: APIResponse): Promise<Divergence[]> {
   const divergences: Divergence[] = [];
   const status = response.status();
   if (status !== 201) {
     divergences.push({
-      check: 'POST /api/booking/ status',
+      check: 'POST /api/booking status',
       expected: '201 Created',
       observed: String(status),
     });
   }
+  divergences.push(...checkHeaders(response));
   const body = await safeJson(response);
+  divergences.push(...checkSchema(body, CREATE_BOOKING_RESPONSE_MIN));
   if (typeof body.bookingid !== 'number' || body.bookingid <= 0) {
     divergences.push({
-      check: 'POST /api/booking/ body.bookingid',
+      check: 'POST /api/booking body.bookingid',
       expected: 'number > 0',
       observed: JSON.stringify(body.bookingid),
     });
@@ -157,23 +161,32 @@ export async function checkRejectionContract(
   const status = response.status();
   if (status !== 400) {
     divergences.push({
-      check: 'POST /api/booking/ inválido status',
+      check: 'POST /api/booking inválido status',
       expected: '400 Bad Request',
       observed: String(status),
     });
   }
+  divergences.push(...checkHeaders(response));
   const body = await safeJson(response);
+  divergences.push(...checkSchema(body, ERROR_BODY, 'body', { allowExtraFields: true }));
   if (body.bookingid !== undefined) {
     divergences.push({
-      check: 'POST /api/booking/ inválido body',
+      check: 'POST /api/booking inválido body',
       expected: 'sin bookingid (no se crea la reserva)',
       observed: `bookingid=${JSON.stringify(body.bookingid)}`,
     });
   }
   const errors = Array.isArray(body.errors) ? body.errors : [];
+  if (errors.some((e) => typeof e !== 'string' || e.trim() === '')) {
+    divergences.push({
+      check: 'POST /api/booking inválido errores (formato)',
+      expected: 'todos los mensajes son strings no vacíos',
+      observed: JSON.stringify(body.errors),
+    });
+  }
   if (!errors.some((e) => String(e).includes(expectedErrorFragment))) {
     divergences.push({
-      check: 'POST /api/booking/ inválido errores',
+      check: 'POST /api/booking inválido errores',
       expected: `mensaje que contenga "${expectedErrorFragment}"`,
       observed: JSON.stringify(body.errors),
     });

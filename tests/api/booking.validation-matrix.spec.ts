@@ -4,7 +4,7 @@ import { findFreeWindow } from '../../src/data/date.utils';
 import { checkRejectionContract } from '../../src/oracle/booking.oracle';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
-type PayloadOverrides = Partial<BookingRequest>;
+type PayloadOverrides = Record<string, unknown>;
 
 async function freeWindowFor(
   api: { booking: { listByRoom: (id: number) => Promise<Array<{ bookingdates: { checkin: string; checkout: string } }>> } },
@@ -47,6 +47,21 @@ const strictRejections: Array<{ label: string; overrides: PayloadOverrides; erro
     overrides: { roomid: 0 },
     error: 'must be greater than or equal to 1',
   },
+  {
+    label: 'firstname null',
+    overrides: { firstname: null },
+    error: 'Firstname should not be blank',
+  },
+  {
+    label: 'depositpaid null',
+    overrides: { depositpaid: null },
+    error: 'Failed to create booking',
+  },
+  {
+    label: 'roomid null',
+    overrides: { roomid: null },
+    error: 'Failed to create booking',
+  },
 ];
 
 test.describe('API — matriz de validación (rechazos estrictos)', () => {
@@ -56,13 +71,13 @@ test.describe('API — matriz de validación (rechazos estrictos)', () => {
       const before = await api.booking.listByRoom(roomId);
       const knownIds = new Set(before.map((b) => b.bookingid));
 
-      const payload: BookingRequest = {
+      const payload = {
         ...buildGuest(),
         roomid: roomId,
         depositpaid: false,
         bookingdates: await freeWindowFor(api, roomId),
         ...overrides,
-      };
+      } as BookingRequest;
       const response = await api.booking.create(payload);
 
       const divergences = await checkRejectionContract(response, error);
@@ -126,6 +141,39 @@ test.describe('API — reglas de negocio no enforced por el backend', () => {
         contentType: 'application/json',
       });
       expect(response.status(), `${bug}: ${label} debe rechazarse con 400`).toBe(400);
+    });
+  }
+
+  /**
+   * BUG-10: bookingdates null o ausente NUNCA recibe respuesta HTTP
+   * (la conexión queda colgada hasta timeout/reset). El contrato exige 400.
+   */
+  for (const variant of [
+    { label: 'bookingdates null', overrides: { bookingdates: null } },
+    { label: 'bookingdates ausente', overrides: {} },
+  ]) {
+    test(`BUG-10: ${variant.label} debe responder 400`, async ({ api, roomUnderTest }) => {
+      test.fail();
+      const base: Record<string, unknown> = {
+        ...buildGuest(),
+        roomid: roomUnderTest.roomid,
+        depositpaid: false,
+        bookingdates: await freeWindowFor(api, roomUnderTest.roomid),
+      };
+      const payload = { ...base, ...variant.overrides };
+      if (variant.label.endsWith('ausente')) {
+        delete payload.bookingdates;
+      }
+      let outcome: string;
+      try {
+        const response = await api.booking.create(payload as unknown as BookingRequest, { timeout: 10_000 });
+        outcome = `HTTP ${response.status()}`;
+      } catch {
+        outcome = 'sin respuesta HTTP (timeout/reset de conexión)';
+      }
+      expect(outcome, 'un payload sin bookingdates debe recibir 400, no colgar el endpoint').toBe(
+        'HTTP 400',
+      );
     });
   }
 });

@@ -20,11 +20,11 @@ habrían generado solos al primer run.
 
 ## 2. Validación de esquema exhaustiva por endpoint
 
-Los chequeos actuales verifican campos **relevantes**, no el shape completo:
-un campo extra inesperado o un tipo cambiado (`bookingid` como string) pasaría
-inadvertido. Falta: esquema por endpoint (requeridos, tipos, sin campos
-inesperados) aplicado en cada respuesta — barato de implementar con validadores
-propios o zod/ajv.
+**Implementada** (`src/oracle/schema.checker.ts` + `contracts.ts`): campos
+requeridos, tipos, nulabilidad, formatos (ISO date, email), detección de campos
+inesperados y contrato de headers (`content-type: application/json`), aplicados
+en alta, rechazo y esquema documentado completo (BUG-03). Pendiente: cubrir
+todos los endpoints restantes (room, report, auth) con la misma rigurosidad.
 
 ## 3. Derivación sistemática de casos negativos
 
