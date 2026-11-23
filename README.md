@@ -102,6 +102,11 @@ crashes de UI ante fallos). Detalle, pasos y evidencia en
 Ver [`docs/evidencia-ia.md`](docs/evidencia-ia.md): invocación de las skills,
 cambios generados, ejecución y correcciones humanas justificadas.
 
+## Resumen de ejecución
+
+Casos, riesgos, limitaciones y pendientes en
+[`docs/resumen-ejecucion.md`](docs/resumen-ejecucion.md).
+
 ## Tiempo invertido y pendientes
 
 - **Invertido**: ~4 h (exploración del entorno real, diseño, implementación,

@@ -1,4 +1,24 @@
+# --- Node / TypeScript ---
 node_modules/
+dist/
+build/
+*.tsbuildinfo
+*.log
+npm-debug.log*
+
+# --- Playwright ---
 playwright-report/
 test-results/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# --- Entorno / secretos ---
+.env
+.env.*
+!.env.example
+
+# --- SO / editores ---
 .DS_Store
+.idea/
+.vscode/
