@@ -57,6 +57,40 @@ verifier consulta estado, el oráculo juzga, y el spec solo declara el
 escenario y decide el fallo. Un escenario nuevo = un spec nuevo que compone
 esas piezas, sin copiar mecánica.
 
+## Reporte y evidencias
+
+**Herramienta: el reporter HTML nativo de Playwright** (decisión deliberada
+sobre Allure). Razones:
+
+- **Cero dependencias para quien evalúa**: `npm run report` abre el reporte sin
+  instalar Java ni CLIs extra — reproducibilidad máxima, que es criterio del reto.
+- **Evidencia integrada**: cada escenario es una fila con trace interactivo,
+  screenshots, video y los adjuntos de divergencias de contrato. Todo viaja en
+  una sola carpeta auto-contenida (`playwright-report/`, publicable como
+  artefacto de CI).
+- **Allure** aporta valor cuando hay histórico/tendencias y dashboards para
+  stakeholders; para una suite de 26 escenarios sin servidor de reportes, es
+  sobrecoste (Java + generación) sin beneficio demostrable aquí.
+
+Artefactos por ejecución:
+
+| Artefacto | Ruta | Contenido |
+|---|---|---|
+| Reporte HTML | `playwright-report/` | 26 escenarios, duraciones, adjuntos, fallos |
+| Evidencias de fallo | `test-results/` | trace.zip, screenshots, video, error-context |
+| Lista de escenarios | `npm run scenarios` | los 26 títulos con su archivo y línea |
+
+## Los 26 escenarios
+
+La carpeta `tests/` tiene **8 archivos pero 26 escenarios**: los casos
+data-driven (matriz de validación, parametrizados) se generan desde datasets
+tipados — es la práctica estándar para no duplicar 13 archivos con el mismo
+cuerpo. La visibilidad completa está en tres lugares:
+
+1. **`docs/escenarios.md`** — matriz numerada 01-26 con archivo y estado.
+2. **`npm run scenarios`** — lista los 26 con su ubicación exacta.
+3. **El reporte HTML** — cada escenario aparece como fila independiente.
+
 ## Decisiones clave
 
 - Backend real en todos los escenarios; los únicos mocks permitidos son los de

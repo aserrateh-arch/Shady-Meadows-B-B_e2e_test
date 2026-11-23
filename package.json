@@ -8,6 +8,7 @@
     "test:api": "playwright test tests/api",
     "test:ui": "playwright test tests/ui",
     "test:headed": "playwright test --headed",
+    "scenarios": "playwright test --list",
     "report": "playwright show-report",
     "typecheck": "tsc --noEmit"
   },
