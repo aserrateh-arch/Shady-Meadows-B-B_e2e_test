@@ -30,7 +30,7 @@ test('muestra el error y no confirma cuando el alta falla con 500', async ({
     return route.continue();
   });
 
-  await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, testInfo);
+  await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, { testInfo });
 
   await expect(reservationPage.errorAlert).toBeVisible();
   await expect(reservationPage.confirmationHeading).toBeHidden();

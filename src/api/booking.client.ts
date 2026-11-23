@@ -1,4 +1,5 @@
 import type { APIRequestContext, APIResponse } from '@playwright/test';
+import { getWithRetry } from './http.utils';
 import type { BookingListEntry, BookingRequest } from './types';
 
 /**
@@ -23,7 +24,7 @@ export class BookingClient {
 
   /** Listado por habitación (requiere auth en este entorno). */
   async listByRoom(roomId: number): Promise<BookingListEntry[]> {
-    const response = await this.request.get(`/api/booking?roomid=${roomId}`);
+    const response = await getWithRetry(this.request, `/api/booking?roomid=${roomId}`);
     if (!response.ok()) {
       throw new Error(`GET /api/booking?roomid=${roomId} falló con ${response.status()}`);
     }

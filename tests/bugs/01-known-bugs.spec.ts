@@ -29,7 +29,10 @@ test.describe('Bugs conocidos del entorno (contrato documentado)', { tag: '@know
       checkin: '2027-01-10',
       checkout: '2027-01-12',
     });
-    await expect(reservationPage.reserveNowButton).toBeVisible({ timeout: 15_000 });
+    await expect(
+      reservationPage.reserveNowButton,
+      'BUG-01: la página de reserva debe renderizar el formulario (hoy GET /api/room/{id} → 500 la rompe)',
+    ).toBeVisible({ timeout: 8_000 });
   });
 
   test('BUG-02: GET /api/booking/{id} debe responder 200 con la reserva', async ({

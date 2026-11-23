@@ -1,4 +1,5 @@
 import type { APIRequestContext, APIResponse } from '@playwright/test';
+import { getWithRetry } from './http.utils';
 import type { Room } from './types';
 
 /** Cliente del recurso Room: descubre habitaciones reales del entorno. */
@@ -6,7 +7,7 @@ export class RoomClient {
   constructor(private readonly request: APIRequestContext) {}
 
   async listRooms(): Promise<Room[]> {
-    const response = await this.request.get('/api/room');
+    const response = await getWithRetry(this.request, '/api/room');
     if (!response.ok()) {
       throw new Error(`GET /api/room falló con ${response.status()}`);
     }

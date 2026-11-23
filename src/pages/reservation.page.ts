@@ -20,6 +20,8 @@ export class ReservationPage {
   readonly confirmationHeading: Locator;
   readonly confirmationDates: Locator;
   readonly errorAlert: Locator;
+  /** Página de error global de Next.js ("This page couldn't load"). */
+  readonly crashIndicator: Locator;
 
   constructor(private readonly page: Page) {
     this.firstnameInput = page.locator('input[name="firstname"]');
@@ -30,6 +32,7 @@ export class ReservationPage {
     this.confirmationHeading = page.getByRole('heading', { name: 'Booking Confirmed' });
     this.confirmationDates = page.locator('.booking-card p strong');
     this.errorAlert = page.locator('.alert-danger');
+    this.crashIndicator = page.getByText("This page couldn't load");
   }
 
   /** Foto del estado actual de la página (para evidencia por pasos). */

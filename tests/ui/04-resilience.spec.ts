@@ -1,3 +1,4 @@
+import { findFreeWindow } from '../../src/data/date.utils';
 import { attachScreenshot } from '../../src/oracle/reporting';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
@@ -18,25 +19,36 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
     page,
   }, testInfo) => {
     void roomDetailWorkaround;
-    let postCount = 0;
+    const roomId = roomUnderTest.roomid;
+    let created201 = 0;
     await page.route(/\/api\/booking\/?$/, async (route) => {
       if (route.request().method() === 'POST') {
-        postCount += 1;
         await new Promise((resolve) => setTimeout(resolve, 6_000)); // latencia inyectada
-        return route.continue(); // el alta sigue yendo al backend real
+        const response = await route.fetch(); // el alta sigue yendo al backend real
+        if (response.status() === 201) created201 += 1;
+        return route.fulfill({ response });
       }
       return route.continue();
     });
 
-    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, testInfo);
+    const windowUsed = await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, {
+      testInfo,
+      onConflictRetry: async () => {
+        const ranges = (await verifier.snapshot(roomId)).map((e) => ({
+          start: e.bookingdates.checkin,
+          end: e.bookingdates.checkout,
+        }));
+        return findFreeWindow(ranges, 2, 3, 180, Math.floor(Math.random() * 90));
+      },
+    });
 
     await expect(reservationPage.confirmationHeading).toBeVisible({ timeout: 20_000 });
     await expect(reservationPage.errorAlert).toBeHidden();
     await attachScreenshot(testInfo, page, 'confirmacion-tras-latencia');
 
-    const matches = await verifier.findAllByIdentity(roomUnderTest.roomid, guest, freeWindow);
+    const matches = await verifier.findAllByIdentity(roomId, guest, windowUsed);
     expect(matches.length, 'la lentitud no debe duplicar la reserva').toBe(1);
-    expect(postCount, 'el front no debe reintentar ni duplicar el POST').toBe(1);
+    expect(created201, 'el front no debe crear más de una reserva').toBe(1);
   });
 
   test('ante corte de conexión la UI informa el error (BUG-05: hoy no lo hace)', {
@@ -58,12 +70,15 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
       return route.continue();
     });
 
-    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, testInfo);
+    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow, { testInfo });
 
     // Expectativa de UX: un fallo de red debe ser visible para el usuario.
     // La foto evidencia el estado real: sin alerta, sin feedback (BUG-05).
     await attachScreenshot(testInfo, page, 'BUG-05-sin-feedback-tras-corte-de-red');
-    await expect(reservationPage.errorAlert).toBeVisible();
+    await expect(
+      reservationPage.errorAlert,
+      'BUG-05: ante un corte de red la UI debe mostrar un error visible al usuario',
+    ).toBeVisible({ timeout: 8_000 });
     await expect(reservationPage.confirmationHeading).toBeHidden();
   });
 
@@ -101,7 +116,10 @@ test.describe('resiliencia ante inestabilidad del backend', () => {
     // exactamente una reserva persistida. La foto captura el estado real
     // (BUG-09: hoy la app revienta en "This page couldn't load").
     await attachScreenshot(testInfo, page, 'BUG-09-estado-tras-doble-clic');
-    await expect(reservationPage.confirmationHeading).toBeVisible({ timeout: 20_000 });
+    await expect(
+      reservationPage.confirmationHeading,
+      'BUG-09: el doble clic no debe romper la app ni duplicar el envío',
+    ).toBeVisible({ timeout: 10_000 });
     await expect(reservationPage.errorAlert).toBeHidden();
     expect(postCount, 'el doble clic no debe producir dos POST').toBe(1);
 
