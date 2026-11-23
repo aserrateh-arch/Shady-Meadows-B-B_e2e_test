@@ -31,8 +31,8 @@ especializadas en lugar de improvisar convenciones.
 
 ## Políticas duras
 - Backend real en todos los escenarios; los únicos mocks permitidos son los de
-  fallo/inestabilidad (`tests/ui/booking.mock-failure.spec.ts`,
-  `tests/ui/booking.resilience.spec.ts`) y deben declararse explícitamente.
+  fallo/inestabilidad (`tests/ui/03-backend-failure-mock.spec.ts`,
+  `tests/ui/04-resilience.spec.ts`) y deben declararse explícitamente.
 - Sin esperas fijas, sin dependencias entre tests, sin datos compartidos.
 - Nunca debilitar aserciones para pasar: una divergencia se reporta, no se oculta.
 

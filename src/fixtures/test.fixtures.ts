@@ -6,9 +6,11 @@ import { RoomClient } from '../api/room.client';
 import type { GuestData, Room } from '../api/types';
 import { buildGuest } from '../data/guest.factory';
 import { findFreeWindow, type DateWindow } from '../data/date.utils';
+import { BookingApiFlow } from '../flows/booking-api.flow';
 import { BookingFlow } from '../flows/booking.flow';
 import { HomePage } from '../pages/home.page';
 import { ReservationPage } from '../pages/reservation.page';
+import { BookingVerifier } from '../verification/booking.verifier';
 
 export interface ApiClients {
   /** Contexto autenticado (Cookie: token=...): alta y consulta de reservas. */
@@ -30,6 +32,10 @@ interface TestFixtures {
   homePage: HomePage;
   reservationPage: ReservationPage;
   bookingFlow: BookingFlow;
+  /** Verificador de estado persistido (lectura por identidad, diffs). */
+  verifier: BookingVerifier;
+  /** Flow del canal API con oráculos aplicados (alta y rechazo). */
+  bookingApiFlow: BookingApiFlow;
   /** Huésped sintético único por test (preparado ANTES del test). */
   guest: GuestData;
   /**
@@ -87,6 +93,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
   guest: async ({}, use) => {
     await use(buildGuest());
+  },
+
+  verifier: async ({ api }, use) => {
+    await use(new BookingVerifier(api));
+  },
+
+  bookingApiFlow: async ({ api, verifier }, use) => {
+    await use(new BookingApiFlow(api, verifier));
   },
 
   freeWindow: async ({ api, roomUnderTest }, use) => {

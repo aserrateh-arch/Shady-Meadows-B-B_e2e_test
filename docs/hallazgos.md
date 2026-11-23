@@ -18,7 +18,7 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
   `fetch('/api/room/{id}')` al montar y revienta con `SyntaxError` al parsear
   el 500 — queda en spinner infinito. **La reserva por UI es imposible sin
   workaround.**
-- **Evidencia**: `tests/bugs/known-bugs.spec.ts` (BUG-01 y su impacto UI),
+- **Evidencia**: `tests/bugs/01-known-bugs.spec.ts` (BUG-01 y su impacto UI),
   `test-results/` de la ejecución.
 
 ## BUG-02 — `GET /api/booking/{id}` responde 500 (con y sin autenticación)
@@ -59,14 +59,14 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
   La pantalla queda en el formulario sin feedback alguno.
 - **Impacto**: el usuario no sabe si reservó o no; riesgo de doble envío
   manual. Nota: tampoco existe guard de doble clic en "Reserve Now".
-- **Evidencia**: `tests/ui/booking.resilience.spec.ts` (fallo esperado).
+- **Evidencia**: `tests/ui/04-resilience.spec.ts` (fallo esperado).
 
 ## BUG-06 — El backend acepta reservas con check-in en el pasado
 
 - **Pasos**: `POST /api/booking` con `bookingdates.checkin` = 2020-01-01.
 - **Esperado (negocio)**: 400 de validación.
 - **Observado**: 201 Created, la reserva queda persistida.
-- **Evidencia**: `tests/api/booking.validation-matrix.spec.ts` (fallo esperado).
+- **Evidencia**: `tests/api/03-validation-matrix.spec.ts` (fallo esperado).
 
 ## BUG-07 — El backend acepta teléfonos no numéricos
 
@@ -97,7 +97,7 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
   página de error "This page couldn't load". La reserva SÍ quedó creada,
   pero el usuario ve una pantalla rota y probablemente reintentará
   (riesgo de reservas duplicadas por reintento manual).
-- **Evidencia**: `tests/ui/booking.resilience.spec.ts` (fallo esperado),
+- **Evidencia**: `tests/ui/04-resilience.spec.ts` (fallo esperado),
   `error-context.md` de la ejecución.
 
 ## BUG-10 — `bookingdates` null o ausente cuelga el endpoint (sin respuesta HTTP)
@@ -110,7 +110,7 @@ Fecha de observación: 2026-11-23. Todos reproducibles de forma consistente
 - **Impacto**: el más grave de los encontrados — un payload malformado deja
   conexiones colgadas (riesgo de agotamiento de recursos / DoS accidental) y
   cualquier consumidor queda esperando indefinidamente.
-- **Evidencia**: `tests/api/booking.validation-matrix.spec.ts` (2 fallos
+- **Evidencia**: `tests/api/03-validation-matrix.spec.ts` (2 fallos
   esperados, ~10 s cada uno por el timeout de la llamada).
 
 ## Divergencias menores (no bug, comportamiento a conocer)

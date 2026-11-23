@@ -1,20 +1,19 @@
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
- * Resiliencia de la UI ante inestabilidad del backend (mocks de red).
- * Complementan al mock de fallo binario (500): aquí el objetivo es el
- * comportamiento del front bajo LENTITUD y CORTE DE CONEXIÓN.
- * El alta real se verifica por API; solo la red se perturba de forma acotada.
+ * Escenarios 20-22 (docs/escenarios.md): resiliencia de la UI ante
+ * inestabilidad del backend (skill mock-resilience-testing). Solo la red se
+ * perturba de forma acotada; la verificación de negocio es backend real.
  */
-test.describe('UI — resiliencia ante inestabilidad del backend', () => {
+test.describe('resiliencia ante inestabilidad del backend', () => {
   test('tolera lentitud del alta: confirma y persiste una sola reserva', async ({
-    api,
     bookingFlow,
     reservationPage,
     roomUnderTest,
     roomDetailWorkaround,
     guest,
     freeWindow,
+    verifier,
     page,
   }) => {
     void roomDetailWorkaround;
@@ -28,21 +27,12 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
       return route.continue();
     });
 
-    const window = freeWindow;
-    await bookingFlow.bookRoom(roomUnderTest, guest, window);
+    await bookingFlow.bookRoom(roomUnderTest, guest, freeWindow);
 
     await expect(reservationPage.confirmationHeading).toBeVisible({ timeout: 20_000 });
     await expect(reservationPage.errorAlert).toBeHidden();
 
-    // Oráculo de integridad: exactamente UNA reserva persistida con esos datos.
-    const bookings = await api.booking.listByRoom(roomUnderTest.roomid);
-    const matches = bookings.filter(
-      (b) =>
-        b.bookingdates.checkin === window.checkin &&
-        b.bookingdates.checkout === window.checkout &&
-        b.firstname === guest.firstname &&
-        b.lastname === guest.lastname,
-    );
+    const matches = await verifier.findAllByIdentity(roomUnderTest.roomid, guest, freeWindow);
     expect(matches.length, 'la lentitud no debe duplicar la reserva').toBe(1);
     expect(postCount, 'el front no debe reintentar ni duplicar el POST').toBe(1);
   });
@@ -73,13 +63,13 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
   });
 
   test('doble clic en Reserve Now no duplica el envío (BUG-09: no hay guard)', async ({
-    api,
     homePage,
     reservationPage,
     roomUnderTest,
     roomDetailWorkaround,
     guest,
     freeWindow,
+    verifier,
     page,
   }) => {
     test.fail();
@@ -94,10 +84,9 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
       return route.continue();
     });
 
-    const window = freeWindow;
     await homePage.goto();
     await homePage.openReservation(roomUnderTest);
-    await reservationPage.setDates(roomUnderTest.roomid, window);
+    await reservationPage.setDates(roomUnderTest.roomid, freeWindow);
     await reservationPage.openGuestForm();
     await reservationPage.fillGuestForm(guest);
     await reservationPage.reserveNowButton.dblclick();
@@ -108,14 +97,7 @@ test.describe('UI — resiliencia ante inestabilidad del backend', () => {
     await expect(reservationPage.errorAlert).toBeHidden();
     expect(postCount, 'el doble clic no debe producir dos POST').toBe(1);
 
-    const bookings = await api.booking.listByRoom(roomUnderTest.roomid);
-    const matches = bookings.filter(
-      (b) =>
-        b.bookingdates.checkin === window.checkin &&
-        b.bookingdates.checkout === window.checkout &&
-        b.firstname === guest.firstname &&
-        b.lastname === guest.lastname,
-    );
+    const matches = await verifier.findAllByIdentity(roomUnderTest.roomid, guest, freeWindow);
     expect(matches.length, 'no debe persistirse más de una reserva').toBe(1);
   });
 });

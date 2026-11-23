@@ -31,23 +31,31 @@ fallos).
 
 ```
 src/
-  api/        Clientes tipados por recurso (booking, room, report, auth)
-  data/       Fábrica de datos sintéticos + utilidades de fechas libres
-  oracle/     Oráculo de contrato: documentación vs. comportamiento observado
-  pages/      Page Objects (Home, Reservation) — único lugar con locators
-  flows/      Flujos de negocio que orquestan POMs
-  fixtures/   test.extend(): clientes API autenticados, POMs, flows,
-              habitación por worker, workaround documentado del entorno
-tests/
-  api/        Éxito (parametrizado x2) y negativo (no-persistencia)
-  ui/         Integración UI+API, API→UI (bloqueado por bugs), mocks de fallo
-              y resiliencia (500, corte de conexión, latencia)
-  bugs/       Contrato documentado que el entorno no cumple (test.fail)
-skills/       api-contract-testing, oracle-testing, synthetic-data,
-              mock-resilience-testing
-agents/       qa-orchestrator (orquesta las skills)
-docs/         hallazgos (bugs), casos priorizados, skills propuestas, evidencia IA
+  api/           Clientes tipados por recurso (booking, room, report, auth)
+  data/          Fábrica de datos sintéticos + utilidades de fechas libres
+  oracle/        Oráculo de contrato: esquemas, headers, identidad, rechazo
+  verification/  BookingVerifier: cómo localizar y comparar estado persistido
+  pages/         Page Objects (Home, Reservation) — único lugar con locators
+  flows/         Flujos de negocio (UI y API) con oráculos aplicados
+  fixtures/      test.extend(): clientes autenticados, POMs, flows, verifier,
+                 habitación por worker, data sintética preparada pre-test
+tests/           SOLO escenarios declarativos (sin mecánica); ver matriz en
+                 docs/escenarios.md — archivos numerados por escenario
+  api/           01 alta parametrizada x2 · 02 rechazo · 03 matriz de validación
+  ui/            01 integración UI+API · 02 API→UI · 03 mock de fallo · 04 resiliencia
+  bugs/          01 contrato documentado que el entorno no cumple (test.fail)
+skills/          api-contract-testing, oracle-testing, synthetic-data,
+                 mock-resilience-testing
+agents/          qa-orchestrator (orquesta las skills)
+docs/            escenarios, hallazgos, casos priorizados, skills propuestas,
+                 evidencia IA, cobertura del oráculo, resumen de ejecución
 ```
+
+**Principio de diseño (SOLID aplicado a tests)**: cada pieza tiene una sola
+responsabilidad — fixtures preparan, POMs localizan, flows orquestan, el
+verifier consulta estado, el oráculo juzga, y el spec solo declara el
+escenario y decide el fallo. Un escenario nuevo = un spec nuevo que compone
+esas piezas, sin copiar mecánica.
 
 ## Decisiones clave
 
@@ -91,8 +99,8 @@ crashes de UI ante fallos). Detalle, pasos y evidencia en
 
 ## Conexión con gates (smoke / regresión)
 
-- **Smoke (bloquea PR)**: `tests/api` + `tests/ui/booking.integration.spec.ts`
-  — alta, rechazo y flujo integrado. `npx playwright test tests/api tests/ui/booking.integration.spec.ts`.
+- **Smoke (bloquea PR)**: `tests/api` + `tests/ui/01-book-room-ui-verify-api.spec.ts`
+  — alta, rechazo y flujo integrado. `npx playwright test tests/api tests/ui/01-book-room-ui-verify-api.spec.ts`.
 - **Regresión (pipeline nocturno)**: suite completa incluyendo mocks y bugs
   conocidos. El exit code es semántico: los `test.fail()` documentados no
   bloquean; cualquier otro rojo sí.
