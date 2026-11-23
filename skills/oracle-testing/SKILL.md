@@ -56,3 +56,14 @@ npx playwright test --workers 2
 ## Ante errores o información insuficiente
 - Si la documentación es ambigua: declara la expectativa más estricta razonable,
   ejecútala y registra la desviación real. Nunca asumas que "lo que hace" es "lo correcto".
+
+## Salidas
+- `Divergence[]` por verificación (vacía = contrato cumplido).
+- Evidencia adjunta en el reporte HTML (JSON de divergencias, fotos).
+- Hallazgos documentados con esperado/observado/pasos.
+
+## Limitaciones
+- Solo juzga lo que está codificado como contrato: una regla de negocio no
+  documentada no es cazable hasta declararla (ver docs/cobertura-oraculo.md).
+- El oráculo de UI asume locators del POM vigentes; un cambio de front exige
+  actualizar el Page Object primero.

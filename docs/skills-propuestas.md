@@ -1,7 +1,7 @@
 # Skills propuestas (no implementadas)
 
 Además de las implementadas (`api-contract-testing`, `oracle-testing`,
-`synthetic-data` + agente `qa-orchestrator`), propondría estas tres.
+`synthetic-data` + agente `qa-orchestrator`), propondría estas cuatro (las tres primeras + visual-regression-testing como demostración de alcance).
 
 ## 1. contract-diff-reporter
 
@@ -49,6 +49,44 @@ Además de las implementadas (`api-contract-testing`, `oracle-testing`,
 - **Prioridad**: media-alta. Es lo que convierte "las pruebas pasan en mi máquina" en
   señal de calidad del equipo. La parte de clasificación/reporte es script; la política
   de qué bloquea (riesgo de negocio) es decisión humana asistida por la skill.
+
+## 4. visual-regression-testing
+
+- **Propósito**: detectar regresiones visuales de la UI comparando screenshots
+  contra una línea base aprobada — o contra nodos de referencia exportados de
+  Figma cuando exista diseño formal.
+- **Usuario**: QE y frontend; corre en regresión, nunca como smoke (es
+  sensible por naturaleza).
+- **Entradas**: páginas/estados a cubrir (home, tarjeta de habitación,
+  formulario de reserva, confirmación), referencias visuales (baselines
+  aprobadas o PNG exportados de nodos Figma), viewports objetivo, umbrales de
+  tolerancia (`maxDiffPixelRatio`), lista de elementos dinámicos a enmascarar
+  (fechas, precios, datos del huésped sintético).
+- **Salidas**: diff visual por escenario (actual / expected / diff heatmap),
+  veredicto por umbral, y flujo de actualización de baseline SOLO con
+  aprobación humana.
+- **Verificación**: dos ejecuciones consecutivas sin cambios deben dar 0 diffs;
+  un cambio intencional de UI debe ser detectado y aprobado explícitamente.
+- **Prioridad**: media. Es la primera propuesta que requiere madurez previa:
+  app visualmente estable y referencias de diseño. Sin Figma ni diseño formal,
+  el baseline lo define la primera ejecución aprobada.
+- **Cómo se implementaría (Playwright nativo, sin dependencias nuevas)**:
+  ```ts
+  await expect(page).toHaveScreenshot('home.png', {
+    maxDiffPixelRatio: 0.01,      // umbral de tolerancia
+    animations: 'disabled',       // anti-flake
+    mask: [page.locator('.rbc-calendar')], // zonas dinámicas fuera del diff
+  });
+  ```
+  Con Figma: exportar el nodo de referencia como PNG (`GET
+  /v1/images/:fileKey?ids=<nodeId>` de la API de Figma) y usarlo como baseline
+  del snapshot, o compararlo con `pixelmatch` en un paso previo.
+- **Utilidad medible**: regresiones visuales detectadas antes de producción
+  vs. escapes reportados; falsos positivos por flake visual (meta: <2 %).
+- **Script vs skill**: la captura y comparación las hace Playwright solo; la
+  skill gobierna la disciplina: umbrales por página, qué se enmascara, cuándo
+  y quién aprueba una actualización de baseline (`--update-snapshots`
+  bloqueado en CI), y cómo versionar las referencias de Figma.
 
 ### Cuál primero y por qué
 

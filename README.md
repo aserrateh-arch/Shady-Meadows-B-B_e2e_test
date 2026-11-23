@@ -104,6 +104,7 @@ Artefactos por ejecución:
 | Reporte HTML | `playwright-report/` | 26 escenarios, duraciones, adjuntos, fallos |
 | Evidencias de fallo | `test-results/` | trace.zip, screenshots, video, error-context |
 | Lista de escenarios | `npm run scenarios` | los 26 títulos con su archivo y línea |
+| Evidencia fija | `docs/evidencia/` | fotos del reporte: suite estable (14 ✅) y suite de bugs (12 🔴) |
 
 ## Los 26 escenarios
 
@@ -175,12 +176,14 @@ cambios generados, ejecución y correcciones humanas justificadas.
 ## Resumen de ejecución
 
 Casos, riesgos, limitaciones y pendientes en
-[`docs/resumen-ejecucion.md`](docs/resumen-ejecucion.md).
+[`docs/resumen-ejecucion.md`](docs/resumen-ejecucion.md). Checklist de
+cumplimiento del enunciado en
+[`docs/checklist-reto.md`](docs/checklist-reto.md).
 
 ## Tiempo invertido y pendientes
 
-- **Invertido**: ~4 h (exploración del entorno real, diseño, implementación,
-  ejecución y documentación).
+- **Invertido**: ~6 h (exploración del entorno real, diseño, implementación,
+  ejecución, documentación e iteraciones de robustez ante la demo compartida).
 - **Pendientes (post-alcance mínimo)**: automatizar los 3 casos priorizados de
   [`docs/casos-prioritarios.md`](docs/casos-prioritarios.md), eliminar el
   workaround cuando se repare BUG-01, y promover los tests de `tests/bugs/` a

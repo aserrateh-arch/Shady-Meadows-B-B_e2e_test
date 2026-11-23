@@ -52,3 +52,15 @@ Ambos deben terminar con exit code 0.
 - Si no hay ventana libre: amplía `searchHorizonDays` en `findFreeWindow`, no
   hardcodees fechas.
 - Si falta un dato del entorno (habitaciones, auth), falla rápido con mensaje claro.
+
+## Salidas
+- Spec(s) en `tests/api/` verdes con 2 workers, exit code 0.
+- Adjuntos `divergencias-contrato` en el reporte cuando el entorno se desvía.
+- Nuevas entradas en `docs/hallazgos.md` si se descubre una desviación.
+
+## Limitaciones
+- El contrato se codifica a mano (la derivación desde Postman/OpenAPI es la
+  skill propuesta `contract-diff-reporter`, no implementada).
+- Depende de la demo compartida: la contención se mitiga con jitter + retry,
+  no se elimina. Nunca reintentar mutaciones salvo 409 de disponibilidad.
+- No cubre oráculos no funcionales (auth matrix, performance).

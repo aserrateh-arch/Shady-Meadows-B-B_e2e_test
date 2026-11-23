@@ -60,3 +60,14 @@ npx playwright test --workers 2   # dos ejecuciones seguidas deben pasar (unicid
 - Si la API rechaza un dato generado: revisa las reglas de validez arriba y
   ajusta la FÁBRICA, no el test. Si el rechazo contradice la documentación,
   repórtalo vía skill oracle-testing.
+
+## Salidas
+- Fixtures `guest` y `freeWindow` resueltas antes de cada test.
+- Datasets tipados para parametrización.
+- Cero literales de datos en `tests/`.
+
+## Limitaciones
+- No hay teardown de los datos creados (la demo se reinicia sola; en un
+  entorno persistente haría falta la skill propuesta `data-cleanup-hygiene`).
+- La unicidad por timestamp no es garantía absoluta entre máquinas que
+  ejecuten en el mismo milisegundo (riesgo aceptado para una demo).

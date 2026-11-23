@@ -63,3 +63,14 @@ npx playwright test tests/ui --workers 2
 - Si no sabes qué DEBERÍA hacer la UI ante ese fallo: escribe la expectativa
   razonable (feedback visible, sin corrupción de datos), márcala como supuesto
   en el test y documéntala. Nunca derives la expectativa de lo que la UI hace hoy.
+
+## Salidas
+- Specs de UI con perturbación declarada y evidencia visual (fotos por paso).
+- Verificación de negocio contra backend real tras la perturbación.
+- Hallazgos UX documentados (`@known-bug`) cuando el front no responde bien.
+
+## Limitaciones
+- El mock NUNCA valida el backend: solo el comportamiento de la UI.
+- Riesgo de falso verde si se mockea más de lo declarado — por eso la
+  interceptación se limita al endpoint perturbado y se declara en el spec.
+- No sustituye pruebas de carga/estrés reales (fuera de alcance del reto).

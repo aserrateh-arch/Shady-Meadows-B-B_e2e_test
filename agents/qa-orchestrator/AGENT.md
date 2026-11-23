@@ -55,3 +55,15 @@ npm run report   # evidencia: playwright-report/
   nunca silenciarlo.
 - Si un gate falla, el trabajo NO está terminado: iterar hasta verde o
   reportar el bloqueo con evidencia.
+
+## Salidas
+- Escenario implementado verde en la suite correspondiente (estable o bugs).
+- Gates ejecutados con exit code registrado; evidencia en el reporte HTML.
+- Documentación actualizada si el escenario revela un hallazgo.
+
+## Limitaciones
+- No inventa contratos: si la expectativa no existe, la declara como supuesto
+  y la registra — nunca la deriva del comportamiento observado.
+- No debilita aserciones ni usa `test.fail()` para esconder fallos; los bugs
+  van a la suite `@known-bug` (roja).
+- Escala al humano cuando una ambigüedad cambia el alcance del escenario.
