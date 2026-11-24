@@ -62,7 +62,8 @@ skills/          api-contract-testing, oracle-testing, synthetic-data,
                  mock-resilience-testing
 agents/          qa-orchestrator (orquesta las skills)
 docs/            escenarios, hallazgos, casos priorizados, skills propuestas,
-                 evidencia IA, cobertura del oráculo, resumen de ejecución
+                 evidencia IA, cobertura del oráculo, resumen de ejecución,
+                 checklist del reto, guía detallada desde cero
 ```
 
 **Principio de diseño (SOLID aplicado a tests)**: cada pieza tiene una sola
@@ -192,7 +193,9 @@ cambios generados, ejecución y correcciones humanas justificadas.
 Casos, riesgos, limitaciones y pendientes en
 [`docs/resumen-ejecucion.md`](docs/resumen-ejecucion.md). Checklist de
 cumplimiento del enunciado en
-[`docs/checklist-reto.md`](docs/checklist-reto.md).
+[`docs/checklist-reto.md`](docs/checklist-reto.md). ¿Nuevo en Playwright?
+Lee [`docs/guia-detallada.md`](docs/guia-detallada.md): la automatización
+explicada pieza por pieza desde cero.
 
 ## Tiempo invertido y pendientes
 
