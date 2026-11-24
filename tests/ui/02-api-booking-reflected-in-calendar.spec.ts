@@ -1,5 +1,6 @@
 import type { BookingRequest } from '../../src/api/types';
 import { findFreeWindow } from '../../src/data/date.utils';
+import { attachScreenshot } from '../../src/oracle/reporting';
 import { expect, test } from '../../src/fixtures/test.fixtures';
 
 /**
@@ -7,10 +8,12 @@ import { expect, test } from '../../src/fixtures/test.fixtures';
  * Se agenda por API y se verifica que el front refleja la ocupación en el
  * calendario de la habitación.
  *
- * BLOQUEADO por BUG-01 y BUG-04 del entorno (docs/hallazgos.md):
- * - GET /api/room/{id} → 500: la página de reserva no renderiza.
- * - GET /api/report/room/{id} → 500: el calendario nunca recibe la ocupación.
- * Fallo esperado: avisará ("unexpectedly passed") cuando el entorno se repare.
+ * BLOQUEADO por BUG-04 del entorno (docs/hallazgos.md):
+ * GET /api/report/room/{id} → 500, así que el calendario nunca recibe la
+ * ocupación. La lectura de habitación (BUG-01) se suplanta con el workaround
+ * documentado para AISLAR la aserción en el calendario — sin él, la página
+ * ni siquiera renderiza y el test no podría distinguir los dos bugs.
+ * Suite @known-bug: quedará verde cuando el entorno se repare.
  */
 test('una reserva creada por API aparece como ocupada en el calendario', {
   tag: '@known-bug',
@@ -18,10 +21,13 @@ test('una reserva creada por API aparece como ocupada en el calendario', {
   api,
   reservationPage,
   roomUnderTest,
+  roomDetailWorkaround,
   guest,
   freeWindow,
   verifier,
-}) => {
+  page,
+}, testInfo) => {
+  void roomDetailWorkaround;
   const roomId = roomUnderTest.roomid;
 
   // Ventana de visualización distinta a la reservada, para distinguir el
@@ -51,9 +57,13 @@ test('una reserva creada por API aparece como ocupada en el calendario', {
   expect(createResponse.status(), 'el alta por API debe ser 201').toBe(201);
 
   await reservationPage.gotoWithDates(roomId, viewWindow);
+  // La foto evidencia el estado real: calendario renderizado pero SIN la
+  // ocupación creada por API (BUG-04).
+  await attachScreenshot(testInfo, page, 'BUG-04-calendario-sin-ocupacion-api');
   await expect
     .poll(() => reservationPage.calendarEvents().count(), {
-      message: 'el calendario debe reflejar la reserva creada por API',
+      message: 'BUG-04: el calendario debe reflejar la reserva creada por API',
+      timeout: 8_000,
     })
     .toBeGreaterThan(eventsBefore);
 });
