@@ -47,7 +47,7 @@ Meadows B&B") donde se reservan habitaciones. Tiene:
   consultarlas (`GET /api/booking?roomid=N`), listar habitaciones
   (`GET /api/room`), autenticarse (`POST /api/auth/login`).
 
-Se construyeron **26 escenarios de prueba** que cubren tres canales:
+Se construyeron **27 escenarios de prueba** que cubren tres canales:
 
 | Canal | Qué prueba | Ejemplo |
 |---|---|---|
@@ -72,7 +72,7 @@ restful-booker-automation/
 │   ├── verification/      ← cómo consultar el estado guardado
 │   └── fixtures/          ← la preparación automática de cada test
 ├── tests/                 ← SOLO escenarios (declarativos, sin mecánica)
-│   ├── api/               ← 16 escenarios de API
+│   ├── api/               ← 17 escenarios de API
 │   ├── ui/                ← 6 escenarios de UI/integración
 │   └── bugs/              ← 4 escenarios del contrato roto del entorno
 ├── skills/                ← 4 guías (SKILL.md) para que un agente de IA
@@ -358,7 +358,7 @@ expect(nuevas).toEqual([]);   // nada nuevo debe haber aparecido
 
 ---
 
-## 5. Los 26 escenarios, explicados por familia
+## 5. Los 27 escenarios, explicados por familia
 
 Matriz completa en `docs/escenarios.md`. Resumen por familia:
 
@@ -418,7 +418,14 @@ comportamiento de la UI ante fallos, no el servidor.
   hace: BUG-05).
 - **Doble clic**: dos clics durante la latencia → hoy revienta la app (BUG-09).
 
-### 5.8 Contrato documentado del entorno (23-26) — `tests/bugs/01-known-bugs.spec.ts`
+### 5.8 Journey API completo (27) — `tests/api/04-booking-journey.spec.ts`
+
+El encadenamiento explícito de todos los endpoints del negocio en un solo
+escenario con pasos visibles: autenticar → descubrir habitaciones → consultar
+disponibilidad → crear → verificar persistencia e identidad. Es la versión
+"visible" de lo que las fixtures hacen implícito en los demás escenarios.
+
+### 5.9 Contrato documentado del entorno (23-26) — `tests/bugs/01-known-bugs.spec.ts`
 
 Los endpoints documentados que el ambiente no cumple (GET room por id → 500,
 GET booking por id → 500, alta sin email/phone). Corren rojos con evidencia.
@@ -507,10 +514,10 @@ se commiteó **antes** de usarse (`4167e2c` → `fc5149a`), como pedía el reto.
 
 ## 9. Decisiones de diseño que suelen preguntar
 
-**¿Por qué 8 archivos si hay 26 escenarios?**
+**¿Por qué 9 archivos si hay 27 escenarios?**
 Los casos data-driven se generan desde datasets tipados
 (`for (const caso of casos) { test(...) }`) — la práctica estándar para no
-duplicar el mismo cuerpo 13 veces. Los 26 se ven con `npm run scenarios`, en
+duplicar el mismo cuerpo 13 veces. Los 27 se ven con `npm run scenarios`, en
 `docs/escenarios.md` y como filas independientes del reporte.
 
 **¿Por qué no reintentos automáticos (`retries: 0`)?**

@@ -1,7 +1,7 @@
 # Matriz de escenarios — 26 pruebas
 
 Listado explícito de todos los escenarios (también visible con
-`npx playwright test --list`). Estado: ✅ estable (suite `npm test`, siempre verde) · ⚠️ bug conocido
+`npx playwright test --list`). Nota: el 27 cierra la tabla API (journey completo). Estado: ✅ estable (suite `npm test`, siempre verde) · ⚠️ bug conocido
 (suite `npm run test:bugs`: **falla en rojo** mientras el bug exista, documentado en
 [`hallazgos.md`](hallazgos.md)).
 
@@ -25,6 +25,7 @@ Listado explícito de todos los escenarios (también visible con
 | 14 | BUG-08: fechas invertidas deben ser 400 (hoy 409 genérico) | `03-validation-matrix.spec.ts` | ⚠️ |
 | 15 | BUG-10: bookingdates null debe responder 400 (hoy cuelga) | `03-validation-matrix.spec.ts` | ⚠️ |
 | 16 | BUG-10: bookingdates ausente debe responder 400 (hoy cuelga) | `03-validation-matrix.spec.ts` | ⚠️ |
+| 27 | Journey API completo: auth → habitaciones → disponibilidad → crear → verificar | `04-booking-journey.spec.ts` | ✅ |
 
 ## UI (`tests/ui/`)
 
@@ -48,5 +49,5 @@ Listado explícito de todos los escenarios (también visible con
 | 25 | BUG-02: GET /api/booking/{id} debe responder 200 con la reserva | `01-known-bugs.spec.ts` | ⚠️ |
 | 26 | BUG-03: el alta debe devolver el esquema completo (email/phone) | `01-known-bugs.spec.ts` | ⚠️ |
 
-**Totales**: 14 estables ✅ + 12 fallos esperados ⚠️ = 26 escenarios.
+**Totales**: 15 estables ✅ + 12 fallos esperados ⚠️ = 27 escenarios.
 Ejecución: `npx playwright test --workers 2` → exit 0 (~1.1 min).

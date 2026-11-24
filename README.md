@@ -26,12 +26,12 @@ agentes de IA.
 npm install                  # dependencias
 npx playwright install chromium
 npm run typecheck            # tsc --noEmit (gate de tipos)
-npm test                     # suite ESTABLE: 14 escenarios, 2 workers, exit 0
+npm test                     # suite ESTABLE: 15 escenarios, 2 workers, exit 0
 npm run test:bugs            # 12 bugs conocidos: fallan en rojo con evidencia
-npm run test:all             # los 26 escenarios juntos
+npm run test:all             # los 27 escenarios juntos
 npm run test:api             # solo API (estable)
 npm run test:ui              # solo UI (estable)
-npm run scenarios            # lista los 26 escenarios con archivo y línea
+npm run scenarios            # lista los 27 escenarios con archivo y línea
 npm run report               # abre el reporte HTML de la última ejecución
 ```
 
@@ -78,9 +78,9 @@ La suite tiene dos clases de pruebas, separadas con el tag `@known-bug`:
 
 | Comando | Qué corre | Cómo debe verse | Exit code |
 |---|---|---|---|
-| `npm test` (= `test:stable`) | Los 14 escenarios estables | **100% verdes, sin un solo rojo** | 0 |
+| `npm test` (= `test:stable`) | Los 15 escenarios estables | **100% verdes, sin un solo rojo** | 0 |
 | `npm run test:bugs` | Los 12 bugs conocidos | **12 en ROJO** — cada fallo ES la evidencia del bug | 1 mientras existan bugs |
-| `npm run test:all` | Los 26 juntos | 14 verdes + 12 rojos | 1 mientras existan bugs |
+| `npm run test:all` | Los 27 juntos | 15 verdes + 12 rojos | 1 mientras existan bugs |
 
 **Semántica clave**: los bugs conocidos NO se maquillan — fallan en rojo con
 su evidencia adjunta (fotos, respuestas, traces). Viven en una suite aparte
@@ -109,26 +109,26 @@ sobre Allure). Razones:
   una sola carpeta auto-contenida (`playwright-report/`, publicable como
   artefacto de CI).
 - **Allure** aporta valor cuando hay histórico/tendencias y dashboards para
-  stakeholders; para una suite de 26 escenarios sin servidor de reportes, es
+  stakeholders; para una suite de este tamaño sin servidor de reportes, es
   sobrecoste (Java + generación) sin beneficio demostrable aquí.
 
 Artefactos por ejecución:
 
 | Artefacto | Ruta | Contenido |
 |---|---|---|
-| Reporte HTML | `playwright-report/` | 26 escenarios, duraciones, adjuntos, fallos |
+| Reporte HTML | `playwright-report/` | escenarios de la suite corrida, duraciones, adjuntos, fallos |
 | Evidencias de fallo | `test-results/` | trace.zip, screenshots, video, error-context |
-| Lista de escenarios | `npm run scenarios` | los 26 títulos con su archivo y línea |
-| Evidencia fija | `docs/evidencia/` | fotos del reporte: suite estable (14 ✅) y suite de bugs (12 🔴) |
+| Lista de escenarios | `npm run scenarios` | los 27 títulos con su archivo y línea |
+| Evidencia fija | `docs/evidencia/` | fotos del reporte: suite estable (✅) y suite de bugs (🔴) |
 
-## Los 26 escenarios
+## Los 27 escenarios
 
-La carpeta `tests/` tiene **8 archivos pero 26 escenarios**: los casos
+La carpeta `tests/` tiene **9 archivos pero 27 escenarios**: los casos
 data-driven (matriz de validación, parametrizados) se generan desde datasets
 tipados — es la práctica estándar para no duplicar 13 archivos con el mismo
 cuerpo. La visibilidad completa está en tres lugares:
 
-1. **`docs/escenarios.md`** — matriz numerada 01-26 con archivo y estado.
+1. **`docs/escenarios.md`** — matriz numerada 01-27 con archivo y estado.
 2. **`npm run scenarios`** — lista los 26 con su ubicación exacta.
 3. **El reporte HTML** — cada escenario aparece como fila independiente.
 
@@ -167,7 +167,7 @@ crashes de UI ante fallos). Detalle, pasos y evidencia en
 ## Cómo usarla otra persona (o un agente)
 
 1. Clona, `npm install`, `npx playwright install chromium`.
-2. `npm test` — los 14 escenarios estables deben quedar 100% verdes (~40 s).
+2. `npm test` — los 15 escenarios estables deben quedar 100% verdes (~40 s).
    `npm run test:bugs` muestra los 12 hallazgos fallando en rojo con evidencia.
 3. Para agregar un escenario: lee `agents/qa-orchestrator/AGENT.md` y la skill
    del canal correspondiente (`skills/*/SKILL.md`).

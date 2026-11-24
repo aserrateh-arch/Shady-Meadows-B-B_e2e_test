@@ -1,7 +1,7 @@
 # Resumen de ejecución — casos, riesgos y limitaciones
 
 Fecha: 2026-11-23 · Comando: `npx playwright test --workers 2` · Resultado:
-**26/26** (14 estables verdes + 12 fallos esperados documentados) en ~1.1 min.
+**27/27** (15 estables verdes + 12 fallos esperados documentados) en ~1.1 min.
 Reporte: `playwright-report/` · Evidencias de fallo: `test-results/` (trace,
 screenshot, video, `error-context.md`).
 
@@ -10,6 +10,7 @@ screenshot, video, `error-context.md`).
 | Escenario | Specs | Estado | Riesgo que cubre |
 |---|---|---|---|
 | API éxito: crear y consultar reserva (parametrizado x2: con/sin depósito) | 2 | ✅ estables | Alta íntegra e identidad del registro |
+| Journey API completo (auth → habitaciones → disponibilidad → crear → verificar) | 1 | ✅ estable | Encadenamiento de endpoints del negocio |
 | API negativa: dato obligatorio ausente | 1 | ✅ estable | Rechazo correcto + no-persistencia |
 | Matriz de validación estricta (campos vacíos, formatos, nulos) | 8 | ✅ estables | Robustez del contrato ante payloads inválidos |
 | UI+API integrada (reserva por UI, verificación por API) | 1 | ✅ estable* | Consistencia entre canales (*usa workaround acotado de BUG-01) |

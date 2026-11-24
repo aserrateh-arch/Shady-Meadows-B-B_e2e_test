@@ -17,6 +17,8 @@ export interface ApiClients {
   booking: BookingClient;
   room: RoomClient;
   report: ReportClient;
+  /** Cliente de autenticación (contexto público): login explícito. */
+  auth: AuthClient;
 }
 
 interface WorkerFixtures {
@@ -82,6 +84,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       booking: new BookingClient(authedContext),
       room: new RoomClient(publicContext),
       report: new ReportClient(authedContext),
+      auth: new AuthClient(publicContext),
     });
     await publicContext.dispose();
     await authedContext.dispose();
