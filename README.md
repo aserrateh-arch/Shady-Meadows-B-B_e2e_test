@@ -59,7 +59,7 @@ tests/           SOLO escenarios declarativos (sin mecánica); ver matriz en
   ui/            01 integración UI+API · 02 API→UI · 03 mock de fallo · 04 resiliencia
   bugs/          01 contrato documentado que el entorno no cumple (@known-bug)
 skills/          api-contract-testing, oracle-testing, synthetic-data,
-                 mock-resilience-testing
+                 mock-resilience-testing, ui-pom-testing
 agents/          qa-orchestrator (orquesta las skills)
 docs/            escenarios, hallazgos, casos priorizados, skills propuestas,
                  evidencia IA, cobertura del oráculo, resumen de ejecución,

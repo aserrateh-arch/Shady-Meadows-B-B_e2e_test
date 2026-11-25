@@ -20,10 +20,10 @@ especializadas en lugar de improvisar convenciones.
 2. **API** → skill `api-contract-testing`: clientes de `src/api/`, status + payload.
 3. **Expectativas** → skill `oracle-testing`: qué es "correcto" (contrato,
    efectos laterales, no-persistencia, verificación cruzada UI↔API).
-4. **UI** → POM + Flows: los tests NUNCA tocan locators; usan `HomePage`,
+4. **UI** → skill `ui-pom-testing` (POM estricto + pirámide de locators) +
+   POM + Flows: los tests NUNCA tocan locators; usan `HomePage`,
    `ReservationPage` y `BookingFlow` inyectados por fixtures. Si falta una
-   interacción, se agrega al Page Object (locator estable: rol/nombre o
-   `input[name]`, prohibido CSS generado, XPath posicional y `waitForTimeout`).
+   interacción, se agrega al Page Object.
 5. **Mocks / resiliencia** → skill `mock-resilience-testing`: perturbación
    mínima y declarada, verificación de negocio siempre contra backend real.
 5. **Fixtures**: todo servicio (clientes API, POMs, flows, habitación por worker)
