@@ -1,4 +1,4 @@
-import { expect, type Locator, type Page } from '@playwright/test';
+import { type Locator, type Page } from '@playwright/test';
 import type { GuestData } from '../api/types';
 import type { DateWindow } from '../data/date.utils';
 
@@ -8,8 +8,15 @@ import type { DateWindow } from '../data/date.utils';
  *   1. fechas (preseleccionadas vía query params checkin/checkout)
  *   2. "Reserve Now" → formulario → "Reserve Now" → "Booking Confirmed"
  *
- * Los locators se derivan del front real (repo restful-booker-platform,
- * assets/src/components/reservation/BookingForm.tsx).
+ * POM estricto: solo locators y acciones (sin aserciones de negocio — esas
+ * viven en los specs). La sincronización se hace con waitFor (operativo),
+ * nunca con esperas fijas.
+ *
+ * Locators por pirámide de prioridad: rol+nombre accesible primero (los
+ * inputs tienen aria-label en el front), getByText para mensajes, y clases
+ * CSS semánticas solo donde el componente no ofrece hook mejor
+ * (react-big-calendar: .rbc-*, alertas Bootstrap: .alert-danger).
+ * Deuda de testabilidad documentada: pedir data-testid al equipo de front.
  */
 export class ReservationPage {
   readonly firstnameInput: Locator;
@@ -24,10 +31,10 @@ export class ReservationPage {
   readonly crashIndicator: Locator;
 
   constructor(private readonly page: Page) {
-    this.firstnameInput = page.locator('input[name="firstname"]');
-    this.lastnameInput = page.locator('input[name="lastname"]');
-    this.emailInput = page.locator('input[name="email"]');
-    this.phoneInput = page.locator('input[name="phone"]');
+    this.firstnameInput = page.getByRole('textbox', { name: 'Firstname' });
+    this.lastnameInput = page.getByRole('textbox', { name: 'Lastname' });
+    this.emailInput = page.getByRole('textbox', { name: 'Email' });
+    this.phoneInput = page.getByRole('textbox', { name: 'Phone' });
     this.reserveNowButton = page.getByRole('button', { name: 'Reserve Now' });
     this.confirmationHeading = page.getByRole('heading', { name: 'Booking Confirmed' });
     this.confirmationDates = page.locator('.booking-card p strong');
@@ -63,7 +70,9 @@ export class ReservationPage {
   /** Paso 1 → 2: confirma la selección de fechas y abre el formulario. */
   async openGuestForm(): Promise<void> {
     await this.reserveNowButton.click();
-    await expect(this.firstnameInput).toBeVisible();
+    // Sincronización operativa (no aserción): el formulario debe estar montado
+    // antes de diligenciarlo.
+    await this.firstnameInput.waitFor({ state: 'visible' });
   }
 
   async fillGuestForm(guest: GuestData): Promise<void> {
@@ -76,11 +85,5 @@ export class ReservationPage {
   /** Paso 2: envía la reserva al backend. */
   async submit(): Promise<void> {
     await this.reserveNowButton.click();
-  }
-
-  async expectConfirmation(window: DateWindow): Promise<void> {
-    await expect(this.confirmationHeading).toBeVisible();
-    await expect(this.confirmationDates).toContainText(window.checkin);
-    await expect(this.confirmationDates).toContainText(window.checkout);
   }
 }

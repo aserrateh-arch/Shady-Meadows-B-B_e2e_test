@@ -37,7 +37,11 @@ test('reservar por UI, confirmar en pantalla y verificar el registro por API', a
       return findFreeWindow(ranges, 2, 3, 180, Math.floor(Math.random() * 90));
     },
   });
-  await reservationPage.expectConfirmation(windowUsed);
+  // Aserciones de negocio en el spec (POM estricto: el page object solo
+  // expone locators y acciones).
+  await expect(reservationPage.confirmationHeading).toBeVisible();
+  await expect(reservationPage.confirmationDates).toContainText(windowUsed.checkin);
+  await expect(reservationPage.confirmationDates).toContainText(windowUsed.checkout);
   await attachScreenshot(testInfo, page, 'paso-2-confirmacion-ui');
 
   const match = await verifier.findByIdentity(roomId, guest, windowUsed);
